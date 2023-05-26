@@ -1,0 +1,32 @@
+body {
+  padding: 0;
+  margin: 0;
+  min-width: 300px;
+}
+
+:root {
+  --light-gray: #f5f5f5;
+  --shadow-default-color: #ccc;
+  --default-shadow: 0 0 8px 0 var(--shadow-default-color);
+}
+
+.-scrollbar::-webkit-scrollbar {
+  border-radius: 10px;
+  width: 4px;
+  height: 4px;
+  /* background-color: #eee; */
+  transition: .3s;
+}
+
+/* .-scrollbar:hover::-webkit-scrollbar {
+  background-color: #dddddd55;
+} */
+.-scrollbar:hover::-webkit-scrollbar-thumb {
+  background-color: #bbbbbbbb;
+  border-radius: 10px;
+}
+
+.-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #bbbbbb55;
+  border-radius: 10px;
+}
