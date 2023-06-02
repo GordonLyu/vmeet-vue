@@ -4,7 +4,7 @@
             <div class="bg">
                 <div class="logo"><span>V</span><span>Meet</span></div>
                 <div class="bg-content">
-
+                    <img src="/public/imgs/login-cover.png" alt="">
                 </div>
             </div>
             <form class="register" @submit.prevent="submit">
@@ -45,6 +45,7 @@
 
 <script setup lang="ts">
 import api from '@/api';
+import router from '@/router';
 import type { Register } from '@/types/User';
 import { ElMessage } from 'element-plus/lib/components/index.js';
 import { ref, reactive } from 'vue';
@@ -72,7 +73,21 @@ const submit = () => {
     }
 
     api.user.register(formData).then((res: any) => {
-        console.log(res);
+        if (res.code == 200) {
+            ElMessage({
+                type: 'success',
+                message: '注册成功'
+            })
+            router.push({
+                path: '/login',
+                replace: true
+            })
+        } else {
+            ElMessage({
+                type: 'error',
+                message: '注册失败，服务器可能出了错误~'
+            })
+        }
     })
 }
 </script>
@@ -139,6 +154,15 @@ const submit = () => {
     height: 95%;
     border-radius: 10px;
     background-color: #f3f5f9;
+    box-shadow: var(--default-shadow);
+    overflow: hidden;
+}
+
+
+.bg-content img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 @media screen and (max-width:750px) {

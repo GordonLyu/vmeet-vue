@@ -4,7 +4,7 @@
             <div class="bg">
                 <div class="logo"><span>V</span><span>Meet</span></div>
                 <div class="bg-content">
-
+                    <img src="/public/imgs/login-cover.png" alt="">
                 </div>
             </div>
             <form class="login" @submit.prevent="submit">
@@ -22,7 +22,7 @@
                         <div class="line"></div>
                     </div>
                 </div>
-                <div class="option">
+                <div class="option" v-loading="loading">
                     <input type="submit" value="登录">
                 </div>
                 <div class="switch">
@@ -36,7 +36,9 @@
 <script setup lang="ts">
 import api from '@/api';
 import { ElMessage } from 'element-plus/lib/components/index.js';
-import { reactive } from 'vue';
+import { reactive, ref } from 'vue';
+
+const loading = ref(false)
 
 const formData = reactive({
     username: '',
@@ -44,14 +46,25 @@ const formData = reactive({
 })
 
 const submit = () => {
-    api.mockUser.login(formData).then((res: any) => {
+    if (loading.value) {
+        return;
+    }
+    loading.value = true;
+    api.user.login(formData).then((res: any) => {
+        loading.value = false;
         if (res.code == '200') {
             ElMessage({
                 type: 'success',
                 grouping: true,
                 message: res.msg
             })
-            localStorage.setItem('token', res.data);
+            let user = {
+                id: res.data.id,
+                nickname: res.data.nickname,
+                avatar: res.data.avatar
+            }
+            localStorage.setItem('user', JSON.stringify(user));
+            localStorage.setItem('token', res.data.token);
             location.reload();
         } else {
             ElMessage({
@@ -61,6 +74,8 @@ const submit = () => {
             })
             formData.password = '';
         }
+    }).catch((err) => {
+        loading.value = false;
     })
 }
 
@@ -69,12 +84,14 @@ const submit = () => {
 <style scoped>
 .logo {
     position: absolute;
-    left: 5px;
-    top: 5px;
+    left: 20px;
+    top: 20px;
     display: inline;
     box-sizing: border-box;
     padding: 5px;
+    border-radius: 5px;
     background-color: #fff;
+    box-shadow: 0 0 2px 0 #ccc;
     user-select: none;
 }
 
@@ -90,6 +107,7 @@ const submit = () => {
 .logo span:nth-of-type(2) {
     padding: 2px;
     background-color: #0db8de;
+    border-radius: 4px;
     color: #fff;
 }
 
@@ -107,7 +125,7 @@ const submit = () => {
     position: relative;
     display: flex;
     height: 600px;
-    max-width: 800px;
+    max-width: 1000px;
     min-width: 200px;
     width: 90%;
     overflow: hidden;
@@ -129,6 +147,14 @@ const submit = () => {
     height: 95%;
     border-radius: 10px;
     background-color: #f3f5f9;
+    box-shadow: var(--default-shadow);
+    overflow: hidden;
+}
+
+.bg-content img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 @media screen and (max-width:750px) {
