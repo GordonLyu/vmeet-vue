@@ -1,8 +1,12 @@
-import { mock } from "mockjs";
-import { userList } from './userList'
+// import { mock } from "mockjs";
+import { userList, getChatRecord, contactList } from './userList'
+import Mock from 'mockjs'
+Mock.setup({
+    timeout: '200-800'
+})
 
 export const login = () => {
-    mock('/mock/login', 'post', (options) => {
+    Mock.mock('/mock/login', 'post', (options) => {
         const data = JSON.parse(options.body);
         for (let item of userList) {
             if (item.username == data.username && item.password == data.password) {
@@ -22,7 +26,7 @@ export const login = () => {
 }
 
 export const getAll = () => {
-    mock('/mock/users', 'get', userList)
+    Mock.mock('/mock/users', 'get', userList)
 }
 
 export const getOne = () => {
@@ -36,10 +40,63 @@ export const getOne = () => {
         }
         return user;
     }
-    mock(/\/mock\/users\/[0-9]/, 'get', (option) => {
+    Mock.mock(/\/mock\/users\/[0-9]/, 'get', (option) => {
         let uid = Number(option.url.substring(option.url.lastIndexOf('/') + 1));
         return t(uid);
     })
 }
 
+export const getMessage = () => {
+    const t = (receiveId: number) => {
 
+        let list = getChatRecord().filter(item => {
+            if (item.sendId == 1 && item.receiveId == receiveId || item.sendId == receiveId && item.receiveId == 1) {
+                return item;
+            }
+        })
+        return list;
+    }
+
+    Mock.mock(/\/mock\/message\/[0-9]+/, 'get', (option) => {
+        let receiveId = Number(option.url.substring(option.url.lastIndexOf('/') + 1));
+        return t(receiveId);
+    })
+}
+
+export const getContact = () => {
+    const t = (uid: number) => {
+        let list = contactList().filter((item) => {
+            if (item.uid == uid) {
+                return item;
+            }
+        })
+
+        let tList: any[] = []
+        list.forEach(item => {
+            let user = getChatRecord().filter(item_ => {
+                if (item_.sendId == 1 && item_.receiveId == item.cUid || item_.sendId == item.cUid && item_.receiveId == 1) {
+                    return item;
+                }
+            }).pop();
+            let lastMessage = user?.content;
+            let date = user?.date
+            for (let i = 0; i < userList.length; i++) {
+                if (item.cUid == userList[i].id) {
+                    tList.push({
+                        id: item.cUid,
+                        username: userList[i].username,
+                        avatar: userList[i].avatar,
+                        lastMessage: lastMessage,
+                        date: date,
+                        num: 0
+                    })
+                }
+            }
+        })
+        return tList;
+    }
+    Mock.mock(/\/mock\/contact\/[0-9]+/, 'get', (option) => {
+        let uid = Number(option.url.substring(option.url.lastIndexOf('/') + 1));
+        return t(uid);
+    })
+}
