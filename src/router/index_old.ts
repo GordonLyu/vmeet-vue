@@ -9,29 +9,15 @@ const routes: Readonly<RouteRecordRaw[]> = [{
 }, {
   path: '',
   name: 'home',
-  component: () => import('@/views/home/index.vue'),
-  redirect: 'chat',
-  children: [{
-    path: 'chat',
-    name: 'chat',
-    component: () => import('@/views/chat/index.vue')
-  }, {
-    path: 'contact',
-    name: 'contact',
-    component: () => import('@/views/contact/index.vue')
-  }, {
-    path: 'moments',
-    name: 'moments',
-    component: () => import('@/views/moments/index.vue')
-  }, ...settingsRouter]
+  component: () => import('@/views/home/index.vue')
 }, {
   path: '/test/chat',
   name: 'testChat',
   component: () => import('@/views/test/chat.vue')
 }, {
-  path: '/test/chatBox',
-  name: 'testChatBox',
-  component: () => import('@/views/test/chatBox.vue')
+  path: '/chat',
+  name: 'chat',
+  component: () => import('@/views/chat/index.vue')
 }, {
   path: '/login',
   name: 'login',
@@ -41,14 +27,12 @@ const routes: Readonly<RouteRecordRaw[]> = [{
   name: 'register',
   component: () => import('@/views/register/index.vue')
 },
-...adminRouter]
+...adminRouter, ...settingsRouter]
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: routes
 })
-
-const whitelist = ['/test/chat', '/test/chatBox']
 
 router.beforeEach((to, from, next) => {
   if (localStorage.getItem('token') && to.path == '/login' || localStorage.getItem('token') && to.path == '/register') {
@@ -57,8 +41,6 @@ router.beforeEach((to, from, next) => {
       replace: true
     });
   } else if (to.path == '/login' || to.path == '/register' || localStorage.getItem('token')) {
-    next();
-  } else if (whitelist.includes(to.path)) {
     next();
   } else {
     next('/login');

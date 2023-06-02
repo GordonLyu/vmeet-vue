@@ -9,6 +9,6 @@ export default {
     meta: {
         title: '偏好设置',
         index: '2',
-        icon: 'icons8:home'
+        icon: 'pajamas:preferences'
     }
 } as RouteRecordRaw;

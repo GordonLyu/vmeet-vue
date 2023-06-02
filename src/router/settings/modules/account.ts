@@ -9,6 +9,6 @@ export default {
     meta: {
         title: '账号和密码',
         index: '1',
-        icon: 'icons8:home'
+        icon: 'line-md:account-small'
     }
 } as RouteRecordRaw;
