@@ -1,29 +1,31 @@
 <template>
-    <div class="chatMain">
-        <div class="title">
-            <div class="chat-user">
-                <Avatar :src="props.user.avatar" :username="props.user.username" :has-dropdown="false"></Avatar>
-            </div>
-            <div class="option">
-                <el-icon>
-                    <Icon :icon="'uiw:more'"></Icon>
-                </el-icon>
-            </div>
-        </div>
-        <div class="chatMessages -scrollbar" ref="chatMessagesRef">
-            <div :class="`msg ${item.uid == 1 ? 'me' : 'other'}`" v-for="item in msgs">
-                <div class="msg-content">
-                    <p>{{ item.msg }}</p>
-                    <div class="time">{{ formatDate(new Date(item.date).getTime()) }}</div>
+    <div :class="`chatMain ${props.class}`" v-if="props.user">
+        <div class="contain">
+            <div class="title">
+                <div class="chat-user">
+                    <Avatar :src="props.user!.avatar" :username="props.user!.username" :has-dropdown="false"></Avatar>
+                </div>
+                <div class="option" v-if="!props.noMore">
+                    <el-icon @click="openSetting">
+                        <Icon :icon="'uiw:more'"></Icon>
+                    </el-icon>
                 </div>
             </div>
-        </div>
-        <div class="tool">
-            <div>语音</div>
-            <div>视频</div>
-        </div>
-        <div class="input">
-            <textarea class="-scrollbar" v-model="text" @keyup.alt.enter="send" ref="textareaRef"></textarea>
+            <div class="chatMessages -scrollbar" ref="chatMessagesRef">
+                <div :class="`msg ${item.id == 1 ? 'me' : 'other'}`" v-if="props.message" v-for="item in props.message">
+                    <div class="msg-content">
+                        <p>{{ item.content }}</p>
+                        <div class="time">{{ formatDate(new Date(item.date).getTime()) }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="tool" v-if="!noTool">
+                <div>语音</div>
+                <div>视频</div>
+            </div>
+            <div class="input">
+                <textarea class="-scrollbar" v-model="text" @keyup.alt.enter="send" ref="textareaRef"></textarea>
+            </div>
         </div>
     </div>
 </template>
@@ -35,8 +37,24 @@ import Avatar from '@/components/Avatar/index.vue'
 import { Icon } from '@iconify/vue/dist/iconify.js';
 
 const props = defineProps<{
-    user: User;
+    user: User | undefined;
+    noMore?: boolean;
+    noTool?: boolean;
+    class?: string;
+    message: {
+        id: number,
+        sendId: number,
+        receiveId: number,
+        content: string,
+        date: number
+    }[] | undefined;
 }>()
+
+const emits = defineEmits(['openSetting'])
+
+const openSetting = () => {
+    emits('openSetting')
+}
 
 const text = ref('')
 const chatMessagesRef = ref<HTMLDivElement>();
@@ -105,14 +123,22 @@ const msgs = reactive([{
 
 <style scoped>
 .chatMain {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
     box-sizing: border-box;
-    padding: 15px 0;
+    padding: 15px 30px;
     width: 100%;
     height: 100%;
     /* background-color: var(--light-gray); */
+}
+
+.contain {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 15px;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    margin: auto;
 }
 
 .title {
@@ -120,7 +146,7 @@ const msgs = reactive([{
     justify-content: space-between;
     align-items: center;
     font-size: 1.2em;
-    width: 95%;
+    width: 100%;
     height: 40px;
     margin: auto;
 }
@@ -144,10 +170,9 @@ const msgs = reactive([{
 .chatMessages {
     display: flex;
     flex-direction: column;
-    /* flex: 3; */
+    flex: 1;
     gap: 20px;
-    width: 95%;
-    height: 500px;
+    width: 100%;
     box-sizing: border-box;
     padding: 10px;
     margin: 0 auto;
@@ -203,7 +228,7 @@ const msgs = reactive([{
 .tool {
     display: flex;
     gap: 10px;
-    width: 95%;
+    width: 100%;
     height: 40px;
     box-sizing: border-box;
     padding: 10px 10px;
@@ -218,9 +243,8 @@ const msgs = reactive([{
 }
 
 .input {
-    width: 95%;
-    flex: 1;
-    /* height: 200px; */
+    width: 100%;
+    height: 150px;
     margin: 0 auto;
     overflow: hidden;
     border-radius: 10px;

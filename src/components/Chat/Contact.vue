@@ -6,16 +6,16 @@
             </div>
         </div>
         <div class="list -scrollbar">
-            <el-badge :value="item.num ? item.num : ''" :max="99" v-for="item, index in contactPerson"
-                @click="selected(index)" :class="`item ${actionIndex == index ? 'action' : ''}`">
+            <el-badge :value="item.num ? item.num : ''" :max="99" v-for="item, index in props.list"
+                @click="selected(index, item.id)" :class="`item ${actionIndex == index ? 'action' : ''}`">
                 <div class="avatar">
                     <el-avatar src="/public/imgs/test.jpg"></el-avatar>
                 </div>
                 <div class="content">
-                    <div class="name">{{ item.name }}</div>
+                    <div class="name">{{ item.username }}</div>
                     <p>{{ item.lastMessage }}</p>
                 </div>
-                <div class="time">{{ item.time }}</div>
+                <div class="time">{{ formatDate(item.date) }}</div>
             </el-badge>
         </div>
     </div>
@@ -23,58 +23,71 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
+import { formatDate } from '@/utils/timeUtil';
+
+const emit = defineEmits(['getUid'])
+const props = defineProps<{
+    list: {
+        id: number,
+        username: string,
+        avatar: string,
+        lastMessage: string,
+        date: number,
+        num: number
+    }[] | undefined;
+}>()
 
 const actionIndex = ref(-1)
 
-const selected = (index: number) => {
+const selected = (index: number, uid: number) => {
     if (actionIndex.value == index) {
         actionIndex.value = -1;
         return;
     }
     actionIndex.value = index;
     contactPerson.value[index].num = 0
-
+    emit('getUid', uid)
 }
 
 const contactPerson = ref([{
-    uid: 2,
-    name: '德玛西亚',
+    id: 2,
+    username: '德玛西亚',
     lastMessage: '哈哈哈哈',
-    time: '刚刚',
+    date: '刚刚',
     num: 100
 }, {
-    uid: 3,
-    name: '爱丽丝',
+    id: 3,
+    username: '爱丽丝',
     lastMessage: '嗡嗡嗡',
-    time: '2022.25.02 22:22',
+    date: '2022.25.02 22:22',
     num: 50
 }, {
-    uid: 4,
-    name: '狗贼',
+    id: 4,
+    username: '狗贼',
     lastMessage: '123333333333333333333333333333333333',
-    time: '2022.25.02 22:22',
+    date: '2022.25.02 22:22',
     num: 0
 }, {
-    uid: 5,
-    name: '诺克萨斯',
+    id: 5,
+    username: '诺克萨斯',
     lastMessage: '所有人都得死',
-    time: '2022.25.02 22:22',
+    date: '2022.25.02 22:22',
     num: 0
 }, {
-    uid: 6,
-    name: '亚托克斯',
+    id: 6,
+    username: '亚托克斯',
     lastMessage: '世界的终结者',
-    time: '2022.25.02 22:22',
+    date: '2022.25.02 22:22',
     num: 0
 }])
 
 onMounted(() => {
     for (let i = 0; i < 10; i++) {
         contactPerson.value.push({
-            uid: 7 + i,
-            name: '亚托克斯',
+            id: 7 + i,
+            username: '亚托克斯',
             lastMessage: '世界的终结者',
-            time: '2022.25.02 22:22',
+            date: '2022.25.02 22:22',
             num: 0
         })
     }
@@ -90,6 +103,7 @@ onMounted(() => {
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
+    padding-bottom: 15px;
     background-color: #fff;
     overflow: hidden;
     box-shadow: 0 0 1px 0 #ccc;
@@ -144,8 +158,7 @@ onMounted(() => {
     padding: 10px 20px;
     border-radius: 10px;
     cursor: pointer;
-    background-color: #fafafa;
-    box-shadow: 0 0 3px 0 #ccc;
+    box-shadow: 0px 1px 1px 0 #eee;
     transition: .3s;
 }
 
@@ -164,18 +177,39 @@ onMounted(() => {
 } */
 
 .list .item:hover {
-    background-color: #eee;
+    background-color: #f8f8f8;
 }
 
 .list .item.action {
-    background-color: #fff;
     box-shadow: var(--default-shadow);
+    transform: translate(10px);
+}
+
+.list .item::before {
+    opacity: 0;
+    position: absolute;
+    margin: auto 0;
+    left: 4px;
+    top: 0;
+    bottom: 0;
+    display: block;
+    content: '';
+    width: 6px;
+    height: 0%;
+    background-color: #0086ff;
+    box-shadow: 2px 2px 5px 0 #003e75 inset, -2px -2px 5px 0 #bde0ff inset;
+    border-radius: 10px;
+    transition: .2s;
+}
+
+.list .item.action::before {
+    opacity: 1;
+    height: 80%;
 }
 
 .list .item .avatar {
     width: 40px;
     height: 40px;
-    /* background-color: red; */
     border-radius: 50px;
     overflow: hidden;
 }

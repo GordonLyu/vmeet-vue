@@ -1,10 +1,12 @@
 <template>
     <div>
-        <el-dropdown v-if="props.hasDropdown">
+        <el-dropdown v-if="props.hasDropdown" :trigger="props.dropdownTrigger"
+            :style="`${props.dropdownTrigger == 'click' ? 'cursor: pointer;' : ''}`">
             <span :class="`dropdown-link ${props.class}`">
-                <el-avatar :src="props.src"> user </el-avatar> <span class="username" v-if="props.username">{{
-                    props.username
-                }}</span>
+                <el-avatar :src="props.src" :size="props.size"> user </el-avatar> <span class="username"
+                    v-if="props.username">{{
+                        props.username
+                    }}</span>
             </span>
             <template #dropdown>
                 <el-dropdown-menu>
@@ -41,7 +43,9 @@ export interface DropdownConfig {
 const props = defineProps<{
     src?: string;
     class?: string;
+    size?: number;
     hasDropdown?: boolean;
+    dropdownTrigger?: 'hover' | 'click' | 'contextmenu';
     dropdownConfig?: DropdownConfig[];
     username?: string;
 }>();

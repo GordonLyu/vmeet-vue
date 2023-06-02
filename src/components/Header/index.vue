@@ -2,9 +2,12 @@
     <header>
         <div class="container">
             <div class="left">
-                <h2>标题</h2>
+                <h2>{{ props.title }}</h2>
             </div>
-            <div class="middle"></div>
+            <div class="middle">
+                <!-- <input type="text"> -->
+                <!-- <h2>{{ props.title }}</h2> -->
+            </div>
             <div class="right">
                 <div class="persion">
                     <Avatar :has-dropdown="true" :src="'/public/imgs/test.jpg'" :dropdown-config="dropdownConfig"
@@ -18,6 +21,10 @@
 <script setup lang="ts">
 import Avatar, { type DropdownConfig } from '@/components/Avatar/index.vue'
 
+const props = defineProps<{
+    title: string
+}>();
+
 const dropdownConfig: DropdownConfig[] = [{
     name: "个人中心",
     to: '/settings'
@@ -25,9 +32,11 @@ const dropdownConfig: DropdownConfig[] = [{
     name: '清理缓存',
     click: (e: Event) => {
         console.log(e);
+        let userTemp = localStorage.getItem('user')
         let t = localStorage.getItem('token');
         localStorage.clear();
         localStorage.setItem('token', t!);
+        localStorage.setItem('user', userTemp!);
         location.reload();
     }
 }, {
@@ -36,6 +45,7 @@ const dropdownConfig: DropdownConfig[] = [{
     click: () => {
         console.log("退出登录");
         localStorage.removeItem('token');
+        localStorage.removeItem('user');
         location.reload();
     }
 }]
