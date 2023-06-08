@@ -1,9 +1,10 @@
 <template>
-    <div :class="`chatMain ${props.class}`" v-if="props.user">
-        <div class="contain">
+    <div :class="`chatMain ${props.class}`">
+        <div class="contain" v-if="contactUser">
             <div class="title">
                 <div class="chat-user">
-                    <Avatar :src="props.user!.avatar" :username="props.user!.username" :has-dropdown="false"></Avatar>
+                    <Avatar :src="baseURL + contactUser.avatar" :username="contactUser.nickname" :has-dropdown="false">
+                    </Avatar>
                 </div>
                 <div class="option" v-if="!props.noMore">
                     <el-icon @click="openSetting">
@@ -12,10 +13,10 @@
                 </div>
             </div>
             <div class="chatMessages -scrollbar" ref="chatMessagesRef">
-                <div :class="`msg ${item.id == 1 ? 'me' : 'other'}`" v-if="props.message" v-for="item in props.message">
+                <div :class="`msg ${item.receiverId == uid ? 'me' : 'other'}`" v-if="messages" v-for="item in messages">
                     <div class="msg-content">
                         <p>{{ item.content }}</p>
-                        <div class="time">{{ formatDate(new Date(item.date).getTime()) }}</div>
+                        <div class="time">{{ formatDate(new Date(item.timestamp).getTime()) }}</div>
                     </div>
                 </div>
             </div>
@@ -31,94 +32,101 @@
 </template>
 
 <script setup lang="ts">
-import type { User } from '@/types/User';
-import { reactive, ref } from 'vue';
+import { ref } from 'vue';
 import Avatar from '@/components/Avatar/index.vue'
 import { Icon } from '@iconify/vue/dist/iconify.js';
+import { formatDate } from '@/utils/timeUtil';
+import api from '@/api';
+import { ElMessage } from 'element-plus/lib/components/index.js';
 
 const props = defineProps<{
-    user: User | undefined;
     noMore?: boolean;
     noTool?: boolean;
     class?: string;
-    message: {
-        id: number,
-        sendId: number,
-        receiveId: number,
-        content: string,
-        date: number
-    }[] | undefined;
-}>()
+}>();
 
 const emits = defineEmits(['openSetting'])
+const messages = ref<{
+    senderId: number,
+    receiverId: number,
+    content: string,
+    type: string,
+    timestamp: number
+}[]>([])
 
 const openSetting = () => {
     emits('openSetting')
 }
 
-const text = ref('')
+const baseURL = import.meta.env.VITE_BASE_API;
+const contactUser = ref();
+const uid = ref(-1);
+const text = ref('');
 const chatMessagesRef = ref<HTMLDivElement>();
 
 const send = async () => {
+    text.value = text.value.trim();
+    console.log(text.value.split('\n'));
     if (text.value == '') {
         return;
     }
-    text.value = text.value.trim();
-    console.log(text.value.split('\n'));
 
-    await msgs.push({
-        uid: 1,
-        date: new Date().toUTCString(),
-        msg: text.value
+    let message = {
+        senderId: 0,
+        receiverId: uid.value,
+        content: text.value,
+        type: 'text',
+        timestamp: new Date().getTime()
+    };
+
+    api.message.sendMessage(uid.value, text.value, 'text').then((res: any) => {
+        if (res.code != 200) {
+            ElMessage({
+                type: 'error',
+                message: '发送失败，服务器可能发生一些问题'
+            })
+        }
     })
     text.value = '';
-    toBottom();
 
+    // await messages.value.splice(0, messages.value.length);
+    await messages.value.push(message);
+    // await pageMessages(uid.value);
+    scrollTo('bottom');
 }
 
-const toBottom = () => {
+const scrollTo = (position: 'top' | 'bottom') => {
+    let scrollHeight = position == 'top' ? 0 : chatMessagesRef.value!.scrollHeight;
     chatMessagesRef.value?.scrollTo({
-        top: chatMessagesRef.value.scrollHeight
+        top: scrollHeight
     })
 }
 
-// 日期格式化
-const formatDate = (timestamp: number) => {
-    let fixedDuration = 3 * 60 * 1000;
-    let duration = new Date().getTime() - timestamp;
-    if (duration < 60 * 1000) {
-        return '刚刚'
-    } else if (duration < fixedDuration) {
-        return `${(duration / (60 * 1000)).toFixed()}分钟前`
-    }
-    let date = new Date(timestamp);
-    return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()} 
-        ${date.getHours()}:${date.getMinutes()}`
+const getMessage = async (_contactUser: {
+    id: number;
+    avatar: string;
+    nickname: string;
+}) => {
+    contactUser.value = _contactUser;
+    uid.value = _contactUser.id;
+    messages.value.splice(0, messages.value.length);
+    await pageMessages(_contactUser.id);
+    scrollTo('bottom');
 }
 
+const pageMessages = async (uid: number) => {
+    await api.message.pageMessages({ id: uid, current: 1, size: 100 }).then((res: any) => {
+        messages.value?.splice(0, 0, ...res.data.list);
+    })
+}
 
-const msgs = reactive([{
-    uid: 1,
-    date: '2023.5.23 12:40',
-    msg: '哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈'
-}, {
-    uid: 2,
-    date: '2023.5.23',
-    msg: '23333333333333333333333333333333'
-}, {
-    uid: 1,
-    date: '2023.5.23',
-    msg: '嗡嗡嗡'
-}, {
-    uid: 1,
-    date: '2023.5.23',
-    msg: '哇哇哇'
-}, {
-    uid: 1,
-    date: '2023.5.23',
-    msg: '哇哇哇'
-}])
+export interface ChatMainInstance {
+    getMessage: Function;
+}
 
+defineExpose({
+    getMessage
+})
 </script>
 
 <style scoped>

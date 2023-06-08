@@ -3,94 +3,60 @@
         <div class="header">
             <div class="search">
                 <input type="text">
+                <div class="add" @click="addContact">
+                    <el-icon :size="26">
+                        <Icon icon="mdi:add" />
+                    </el-icon>
+                </div>
             </div>
         </div>
-        <div class="list -scrollbar">
-            <el-badge :value="item.num ? item.num : ''" :max="99" v-for="item, index in props.list"
-                @click="selected(index, item.id)" :class="`item ${actionIndex == index ? 'action' : ''}`">
+        <div class="list -scrollbar" v-loading="loading">
+            <div v-for="item, index in contacts" @click="selected(index, item)" :key="item.id"
+                :class="`item ${actionIndex == index ? 'action' : ''}`">
                 <div class="avatar">
-                    <el-avatar src="/public/imgs/test.jpg"></el-avatar>
+                    <el-avatar :src="baseURL + item.avatar"></el-avatar>
                 </div>
                 <div class="content">
-                    <div class="name">{{ item.username }}</div>
-                    <p>{{ item.lastMessage }}</p>
+                    <div class="name">{{ item.nickname }}</div>
                 </div>
-                <div class="time">{{ formatDate(item.date) }}</div>
-            </el-badge>
+            </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { formatDate } from '@/utils/timeUtil';
+import api from '@/api';
+import type { User } from '@/types/User';
+import { Icon } from '@iconify/vue/dist/iconify.js';
 
-const emit = defineEmits(['getUid'])
-const props = defineProps<{
-    list: {
-        id: number,
-        username: string,
-        avatar: string,
-        lastMessage: string,
-        date: number,
-        num: number
-    }[] | undefined;
-}>()
+const baseURL = import.meta.env.VITE_BASE_API;
+
+const emit = defineEmits(['selected'])
 
 const actionIndex = ref(-1)
+const contacts = ref<User[]>([]);
+const loading = ref(true);
 
-const selected = (index: number, uid: number) => {
+const selected = (index: number, user: User) => {
     if (actionIndex.value == index) {
         actionIndex.value = -1;
+        emit('selected', null);
         return;
     }
     actionIndex.value = index;
-    contactPerson.value[index].num = 0
-    emit('getUid', uid)
+    emit('selected', user);
 }
 
-const contactPerson = ref([{
-    id: 2,
-    username: '德玛西亚',
-    lastMessage: '哈哈哈哈',
-    date: '刚刚',
-    num: 100
-}, {
-    id: 3,
-    username: '爱丽丝',
-    lastMessage: '嗡嗡嗡',
-    date: '2022.25.02 22:22',
-    num: 50
-}, {
-    id: 4,
-    username: '狗贼',
-    lastMessage: '123333333333333333333333333333333333',
-    date: '2022.25.02 22:22',
-    num: 0
-}, {
-    id: 5,
-    username: '诺克萨斯',
-    lastMessage: '所有人都得死',
-    date: '2022.25.02 22:22',
-    num: 0
-}, {
-    id: 6,
-    username: '亚托克斯',
-    lastMessage: '世界的终结者',
-    date: '2022.25.02 22:22',
-    num: 0
-}])
+const addContact = () => {
+    
+}
 
 onMounted(() => {
-    for (let i = 0; i < 10; i++) {
-        contactPerson.value.push({
-            id: 7 + i,
-            username: '亚托克斯',
-            lastMessage: '世界的终结者',
-            date: '2022.25.02 22:22',
-            num: 0
-        })
-    }
+    api.contact.getContacts().then((res: any) => {
+        contacts.value = res.data;
+        loading.value = false;
+    })
 })
 
 
@@ -120,11 +86,14 @@ onMounted(() => {
 }
 
 .header .search {
-    width: 70%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 80%;
 }
 
 .header .search input {
-    width: 100%;
+    width: 80%;
     outline: none;
     border: none;
     box-sizing: border-box;
@@ -132,6 +101,20 @@ onMounted(() => {
     font-size: 1.1em;
     border-radius: 50px;
     box-shadow: 0 0 5px 0 #ccc;
+}
+
+
+.header .search .add {
+    display: grid;
+    place-items: center;
+    background-color: #eee;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.header .search .add:hover {
+    background-color: #ccc;
 }
 
 .list {

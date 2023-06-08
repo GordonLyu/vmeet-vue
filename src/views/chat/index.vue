@@ -1,59 +1,32 @@
 <template>
     <div class="chat">
-        <div class="contact" v-loading="loading.contact">
-            <Contact :list="contacts" @get-uid="test"></Contact>
+        <div class="chat-message" v-loading="loading.contact">
+            <ChatMessage @get-uid="test"></ChatMessage>
         </div>
-        <div class="chatMain" v-if="ChatToUser" v-loading="loading.chatMain">
-            <ChatMain :message="messages" :user="ChatToUser" @open-setting="open"></ChatMain>
+        <div class="chat-main">
+            <ChatMain @open-setting="open" ref="chatMainRef"></ChatMain>
         </div>
-        <div :class="`chatSetting ${isOpenChatSetting ? 'open' : ''}`" v-if="ChatToUser" v-loading="loading.chatMain">
-            <ChatSetting @close="close">
-
-            </ChatSetting>
+        <div :class="`chat-setting ${isOpenChatSetting ? 'open' : ''}`">
+            <ChatSetting @close="close"></ChatSetting>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import Contact from '@/components/Chat/Contact.vue';
-import ChatMain from '@/components/Chat/ChatMain.vue';
+import ChatMessage from '@/components/Chat/ChatMessage.vue';
+import ChatMain, { type ChatMainInstance } from '@/components/Chat/ChatMain.vue';
 import ChatSetting from '@/components/Chat/ChatSetting.vue';
 import { onMounted, ref } from 'vue';
-import api from '@/api';
-import type { User } from '@/types/User';
 
-const isOpenChatSetting = ref(true);
-const ChatToUser = ref<User>()
+const chatMainRef = ref<ChatMainInstance>();
+
+const isOpenChatSetting = ref(false);
 const loading = ref({
-    contact: true,
-    chatMain: true
+    contact: false,
+    chatMain: false
 })
 
-onMounted(() => {
-    api.mockContact.getContacts(1).then((res: any) => {
-        contacts.value = res;
-        // console.log(contacts.value);
-        loading.value.contact = false;
-    })
-
-})
-interface Contact {
-    id: number,
-    username: string,
-    avatar: string,
-    lastMessage: string,
-    date: number,
-    num: number
-}
-interface Message {
-    id: number,
-    sendId: number,
-    receiveId: number,
-    content: string,
-    date: number
-}
-const messages = ref<Message[]>([])
-const contacts = ref<Contact[]>([]);
+const uid = ref(-1)
 
 const open = () => {
     isOpenChatSetting.value = !isOpenChatSetting.value;
@@ -63,22 +36,18 @@ const close = () => {
     isOpenChatSetting.value = false;
 }
 
-const test = (uid: number) => {
+const test = (contactUser: any) => {
+    chatMainRef.value?.getMessage(contactUser);
     loading.value.chatMain = true;
-    api.mockUser.getOne(uid).then((res: any) => {
-        // console.log(res);
-        ChatToUser.value = {
-            id: res.id,
-            username: res.username,
-            avatar: res.avatar
-        }
-    })
-    api.mockMessage.getMessage(uid).then((res: any) => {
-        messages.value = res;
-        loading.value.chatMain = false;
-    })
+    uid.value = contactUser.id;
 }
 
+
+onMounted(() => {
+    // let uid = JSON.parse(localStorage.getItem('user')!).id;
+    // let messageList = JSON.parse(localStorage.getItem('messageList-' + uid)!);
+    // alert(messageList)
+})
 
 </script>
 <style>
@@ -90,14 +59,14 @@ body,
 </style>
 
 <style scoped>
-.contact {
+.chat-message {
     width: 300px;
     height: 100%;
     transition: .3s;
 }
 
 @media screen and (max-width: 950px) {
-    .contact {
+    .chat-message {
         width: 0;
     }
 }
@@ -110,18 +79,18 @@ body,
     min-height: 500px;
 }
 
-.chatMain {
+.chat-main {
     flex: 1;
     height: 100%;
 }
 
-.chatSetting {
+.chat-setting {
     width: 0px;
     overflow: hidden;
     transition: .2s;
 }
 
-.chatSetting.open {
+.chat-setting.open {
     width: 300px;
 }
 </style>
