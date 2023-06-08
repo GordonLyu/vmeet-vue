@@ -4,8 +4,12 @@ let ws: WebSocket;
  * 连接wesocket
  * @param url wesocket地址
  */
-const connect = (url: string) => {
-    ws = new WebSocket(url);
+const connect = (url?: string) => {
+    if (url) {
+        ws = new WebSocket(url);
+    } else {
+        ws = new WebSocket(import.meta.env.VITE_BASE_API.replace("http", "ws"))
+    }
 }
 
 /**

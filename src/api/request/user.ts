@@ -18,25 +18,33 @@ export const register = (userRegister: Register) => {
 }
 
 /**
+ * 验证是否登录
+ */
+export const isLogin = () => {
+    return request.get("/user/is-login");
+}
+
+/**
  * 修改密码
  * @param PasswordData 新密码数据
  */
-export const changePassword = (PasswordData: { id: number, oldPassword: string, newPassword: string }) => {
-    return request.post('/user/ChangePassword', JSON.stringify(PasswordData))
+export const changePassword = (PasswordData: { oldPassword: string, newPassword: string }) => {
+    return request.post('/user/change-password', JSON.stringify(PasswordData))
 }
 
 /**
  * 修改昵称
  * @param nicknameData 新昵称数据
  */
-export const changeNickname = (nicknameData: { id: number, newNickname: string }) => {
-    return request.put('/user/changeNickName', JSON.stringify(nicknameData))
+export const changeNickname = (nicknameData: { newNickname: string }) => {
+    return request.put('/user/change-nickname', JSON.stringify(nicknameData))
 }
 
 /**
  * 上传头像
  */
 export const uploadAvatar = () => {
+    
 
 }
 

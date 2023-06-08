@@ -25,8 +25,6 @@ request.interceptors.response.use(res => {
         type: 'error',
         message: '服务器出现异常'
     })
-    console.log(error);
-
     return Promise.reject(error);
 })
 
