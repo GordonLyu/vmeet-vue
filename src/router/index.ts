@@ -1,6 +1,19 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import adminRouter from './admin'
 import settingsRouter from './settings'
+import api from '@/api'
+
+
+// 群体导入~
+const modules: any = import.meta.glob('./modules/*', {
+  eager: true
+})
+
+const mainChildrenRouter = []
+
+for (const path in modules) {
+  mainChildrenRouter.push(modules[path].default)
+}
 
 const routes: Readonly<RouteRecordRaw[]> = [{
   path: '/test',
@@ -8,22 +21,10 @@ const routes: Readonly<RouteRecordRaw[]> = [{
   component: () => import('@/views/test/Test.vue')
 }, {
   path: '',
-  name: 'home',
-  component: () => import('@/views/home/index.vue'),
+  name: 'main',
   redirect: 'chat',
-  children: [{
-    path: 'chat',
-    name: 'chat',
-    component: () => import('@/views/chat/index.vue')
-  }, {
-    path: 'contact',
-    name: 'contact',
-    component: () => import('@/views/contact/index.vue')
-  }, {
-    path: 'moments',
-    name: 'moments',
-    component: () => import('@/views/moments/index.vue')
-  }, ...settingsRouter]
+  component: () => import('@/views/home/index.vue'),
+  children: [...mainChildrenRouter, ...settingsRouter]
 }, {
   path: '/test/chat',
   name: 'testChat',
@@ -32,6 +33,14 @@ const routes: Readonly<RouteRecordRaw[]> = [{
   path: '/test/chatBox',
   name: 'testChatBox',
   component: () => import('@/views/test/chatBox.vue')
+}, {
+  path: '/test/upload',
+  name: 'testUpload',
+  component: () => import('@/views/test/upload.vue')
+}, {
+  path: '/test/videoChat',
+  name: 'videoChat',
+  component: () => import('@/views/test/videoChat.vue')
 }, {
   path: '/login',
   name: 'login',
@@ -48,7 +57,7 @@ const router = createRouter({
   routes: routes
 })
 
-const whitelist = ['/test/chat', '/test/chatBox']
+const whitelist = ['/login', '/register', '/test/chat', '/test/chatBox', '/test/videoChat']
 
 router.beforeEach((to, from, next) => {
   if (localStorage.getItem('token') && to.path == '/login' || localStorage.getItem('token') && to.path == '/register') {
@@ -56,8 +65,15 @@ router.beforeEach((to, from, next) => {
       path: 'chat',
       replace: true
     });
-  } else if (to.path == '/login' || to.path == '/register' || localStorage.getItem('token')) {
-    next();
+  } else if (localStorage.getItem('token')) {
+    api.user.isLogin().then((res: any) => {
+      if (res.code == 200) {
+        next();
+      } else {
+        localStorage.removeItem('token');
+        next('/login');
+      }
+    })
   } else if (whitelist.includes(to.path)) {
     next();
   } else {
