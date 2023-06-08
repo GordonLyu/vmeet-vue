@@ -4,7 +4,7 @@
             <div class="header">
                 <div class="logo"><span>V</span><span>Meet</span></div>
             </div>
-            <div class="list">
+            <div class="list -scrollbar">
                 <el-menu default-active="1" :collapse="true" @select="selected">
                     <el-menu-item v-for="item in list" :index="item.index" :route="item.to" @click="to(item)">
                         <el-icon v-if="item.icon">
@@ -121,7 +121,7 @@ onMounted(() => {
     align-items: center;
     width: 100%;
     height: 60px;
-    box-shadow: 0 0 1px 0 #ccc;
+    box-shadow: 0 1px 1px 0 #eee;
 }
 
 .list {
@@ -130,5 +130,6 @@ onMounted(() => {
     justify-content: center;
     box-sizing: border-box;
     padding: 15px 0;
+    overflow-y: auto;
 }
 </style>

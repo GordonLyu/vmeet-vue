@@ -2,6 +2,7 @@
     <div class="main" v-if="isShow">
         <ChangNicknameDialog :open="changeNicknameDialog" @close="changeNicknameDialog = false; reload();" />
         <ChangePasswordDialog :open="changePasswordDialog" @close="changePasswordDialog = false" />
+        <ChangeAvatarDialog :open="changeAvatarDialog" @close="changeAvatarDialog = false" />
         <div class="contain">
             <div class="title">
                 <h3>账户和密码</h3>
@@ -9,7 +10,7 @@
             </div>
             <div class="content">
                 <div class="list">
-                    <div class="item">
+                    <div class="item" @click="changeAvatarDialog = true">
                         <div class="title">
                             <h4></h4>
                             <p></p>
@@ -71,11 +72,13 @@
 import { ref } from 'vue';
 import ChangePasswordDialog from './components/ChangePasswordDialog.vue';
 import ChangNicknameDialog from './components/ChangNicknameDialog.vue';
+import ChangeAvatarDialog from './components/ChangeAvatarDialog.vue';
 import Avatar from '@/components/Avatar/index.vue'
 import { Icon } from '@iconify/vue/dist/iconify.js';
 
 const changePasswordDialog = ref(false);
-const changeNicknameDialog = ref(false)
+const changeNicknameDialog = ref(false);
+const changeAvatarDialog = ref(false)
 const isShow = ref(true);
 const nickname = ref(JSON.parse(localStorage.getItem('user')!).nickname);
 
@@ -90,6 +93,7 @@ const reload = () => {
     height: 100%;
     box-sizing: border-box;
     padding: 15px 30px;
+    overflow-y: auto;
 }
 
 .contain {

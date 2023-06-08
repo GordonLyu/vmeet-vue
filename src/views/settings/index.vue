@@ -1,6 +1,6 @@
 <template>
     <div class="main">
-        <div class="select">
+        <div class="select -scrollbar">
             <div class="list">
                 <div :class="`item ${actionIndex == index ? 'action' : ''}`" @click="to(item.path, index)"
                     v-for="item, index in selectList">
@@ -40,8 +40,6 @@ onMounted(() => {
             ...item.meta!
         });
     })
-    // console.log(selectList.value);
-
 })
 </script>
 
@@ -55,6 +53,7 @@ onMounted(() => {
     width: 250px;
     box-sizing: border-box;
     padding: 20px 10px;
+    overflow-y: auto;
 }
 
 .list {

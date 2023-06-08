@@ -10,7 +10,7 @@
             </div>
             <div class="right">
                 <div class="persion">
-                    <Avatar :has-dropdown="true" :src="'/public/imgs/test.jpg'" :dropdown-config="dropdownConfig"
+                    <Avatar :has-dropdown="true" :src="baseURL + props.avatar" :dropdown-config="dropdownConfig"
                         :dropdown-trigger="'click'"></Avatar>
                 </div>
             </div>
@@ -21,8 +21,11 @@
 <script setup lang="ts">
 import Avatar, { type DropdownConfig } from '@/components/Avatar/index.vue'
 
+const baseURL = import.meta.env.VITE_BASE_API;
+
 const props = defineProps<{
-    title: string
+    title: string;
+    avatar?: string;
 }>();
 
 const dropdownConfig: DropdownConfig[] = [{
@@ -57,7 +60,7 @@ header {
     width: 100%;
     height: 100%;
     box-sizing: border-box;
-    box-shadow: 0 0 1px 0 #ccc;
+    box-shadow: 0 0px 1px 0 #ccc;
 }
 
 .container {

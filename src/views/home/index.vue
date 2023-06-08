@@ -5,7 +5,7 @@
     </div>
     <div class="contain">
       <div class="header">
-        <Header :title="title"></Header>
+        <Header :title="title" :avatar="user.avatar"></Header>
       </div>
       <div class="content">
         <RouterView></RouterView>
@@ -21,6 +21,7 @@ import { ref } from 'vue';
 import { RouterView } from 'vue-router';
 
 const title = ref('聊天')
+const user = JSON.parse(localStorage.getItem('user')!);
 
 const getMenuItemData = (item: any) => {
   title.value = item.title;
@@ -37,13 +38,13 @@ body,
 <style scoped>
 .main {
   display: flex;
-  gap: 5px;
   height: 100%;
 }
 
 .menu {
   width: 60px;
   height: 100%;
+  z-index: 1;
 }
 
 .contain {
@@ -57,7 +58,6 @@ body,
 
 .header {
   height: 60px;
-  box-shadow: 0 0 1px 0 #ccc;
 }
 
 .content {
