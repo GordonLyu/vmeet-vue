@@ -2,7 +2,7 @@
     <div>
         <el-dialog :model-value="props.open" title="修改密码" width="400px" :class="'dialog'" :z-index="1000"
             @close-auto-focus="emits('close')">
-            <el-form :model="form" :label-position="'top'">
+            <el-form :model="form" :label-position="'top'" @submit.prevent="submit">
                 <el-form-item label="旧密码" :label-width="'140px'">
                     <el-input v-model="form.oldPassword" autocomplete="off" type="password" />
                 </el-form-item>
@@ -62,7 +62,6 @@ const submit = () => {
                 type: 'success',
                 message: '密码修改成功'
             })
-            form.newPassword = form.oldPassword = rePassword.value = ''
             emits('close');
         } else {
             ElMessage({
@@ -70,6 +69,7 @@ const submit = () => {
                 message: res.msg
             })
         }
+        form.newPassword = form.oldPassword = rePassword.value = ''
         loading.value = false;
     })
 }

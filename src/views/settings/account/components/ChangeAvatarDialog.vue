@@ -1,10 +1,11 @@
 <template>
     <div>
-        <el-dialog :model-value="props.open" title="修改昵称" width="400px" :class="'dialog'" :z-index="1000"
+        <el-dialog :model-value="props.open" title="修改头像" width="400px" :class="'dialog'" :z-index="1000"
             @close-auto-focus="emits('close')">
             <el-form :model="form" :label-position="'top'" @submit.prevent="submit">
-                <el-form-item label="昵称" :label-width="'140px'">
-                    <el-input v-model="form.newNickname" autocomplete="off" type="text" />
+                <el-form-item label="头像" :label-width="'140px'">
+                    <!-- <el-input v-model="form.newNickname" autocomplete="off" type="text" /> -->
+                    <Upload :isImg="true" :is-cropper="true"></Upload>
                 </el-form-item>
             </el-form>
             <template #footer>
@@ -21,6 +22,7 @@
 import api from '@/api';
 import { ElMessage } from 'element-plus/lib/components/index.js';
 import { reactive, ref } from 'vue';
+import Upload from '@/components/Upload';
 
 let user = JSON.parse(localStorage.getItem('user')!);
 const props = defineProps<{
@@ -55,7 +57,7 @@ const submit = () => {
             user.nickname = form.newNickname;
             localStorage.setItem('user', JSON.stringify(user))
             emits('close');
-            // location.reload();
+            location.reload();
         } else {
             ElMessage({
                 type: 'error',
