@@ -41,7 +41,7 @@ export const getChatRecord = () => {
             date: new Date('2023.5.29 10:' + (34 + i)).getTime(),
         })
     }
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 10; i++) {
         list.push({
             id: i + 5,
             sendId: 1,

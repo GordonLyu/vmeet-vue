@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-const baseURL = import.meta.env.VITE_BASE_IP_API;
+const baseURL = import.meta.env.VITE_BASE_API.replace('http', 'ws');
 import api from '@/api'
 
 // ===================以下是socket=======================
