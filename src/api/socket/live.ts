@@ -1,20 +1,21 @@
 import socket from "@/utils/socket"
-let baseURL = import.meta.env.VITE_BASE_IP_API;
+let baseURL = import.meta.env.VITE_BASE_API.replace('http', 'ws');
 
 let localStream: MediaStream; // 本地流
 let peerConnection: RTCPeerConnection; // 对等连接
 let remotevideoDOM: HTMLMediaElement;
 
-export const setRemotevideoDOM = (_remotevideoDOM: HTMLMediaElement) => {
-    remotevideoDOM = _remotevideoDOM;
+export const setRemoteVideoDOM = (_remotevideoDOM: HTMLMediaElement | undefined) => {
+    remotevideoDOM = _remotevideoDOM!;
 }
 
 /**
- * websocket 连接
+ * websocket 连接 - 服务器
+ * @param uid 用户ID
  */
 export const connect = (uid: number) => {
 
-    socket.connect(`ws://${baseURL}/live/${uid}`);
+    socket.connect(`${baseURL}/live/${uid}`);
 
     socket.onopen(() => {
         console.log('已连接服务器...');
@@ -32,8 +33,35 @@ export const connect = (uid: number) => {
     })
 }
 
+/**
+ * 断开连接
+ */
 export const close = () => {
     socket.disconnect();
+}
+
+/**
+ * 断开 peer
+ */
+export const stopPeerConnection = () => {
+    peerConnection.close();
+}
+
+/**
+ * 断开 视频流
+ */
+export const stopStream = () => {
+    if (localStream) {
+        localStream.getTracks().forEach((track) => {
+            track.stop();
+            track.clone();
+            localStream.removeTrack(track);
+        })
+    }
+}
+
+export const replaceStream = (track: MediaStreamTrack) => {
+    peerConnection.getSenders()[0].replaceTrack(track);
 }
 
 /**
@@ -62,6 +90,7 @@ export const startVideo = (videoELement: HTMLMediaElement | undefined, V: boolea
             window.navigator.mediaDevices.getUserMedia(mediaConfig).then((stream: MediaStream) => {
                 C(stream);
             }).catch(error => {
+                console.log(error);
                 reject(new Error(`发生了一个错误: [错误代码：${error.code}]`))
             })
         }
@@ -72,7 +101,7 @@ export const startVideo = (videoELement: HTMLMediaElement | undefined, V: boolea
 /**
  * 发送Offer
  */
-export const sendOffer = () => {
+export const startRemote = () => {
     if (!localStream) {
         console.error('请先捕获本地视频数据');
         return;
