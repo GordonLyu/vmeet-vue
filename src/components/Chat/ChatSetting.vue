@@ -31,7 +31,7 @@ const close = () => {
 const del = () => {
     ElMessageBox.confirm('是否删除该联系人（德玛西亚）？', '删除联系人', {
         confirmButtonText: '删除',
-        cancelButtonText: '否',
+        cancelButtonText: '取消',
         confirmButtonClass: 'chat-setting-del-confirm-button',
         type: 'warning',
     }).then(() => {

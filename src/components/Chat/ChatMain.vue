@@ -12,7 +12,7 @@
                     </el-icon>
                 </div>
             </div>
-            <div class="chatMessages -scrollbar" ref="chatMessagesRef">
+            <div class="chatMessages -scrollbar" ref="chatMessagesRef" @scroll="chatMessagesScroll($event)">
                 <div :class="`msg ${item.receiverId == uid ? 'me' : 'other'}`" v-if="messages" v-for="item in messages">
                     <div class="msg-content">
                         <p>{{ item.content }}</p>
@@ -27,12 +27,15 @@
             <div class="input">
                 <textarea class="-scrollbar" v-model="text" @keyup.alt.enter="send" ref="textareaRef"></textarea>
             </div>
+            <div>
+                <el-button @click="send">发送</el-button>
+            </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import Avatar from '@/components/Avatar/index.vue'
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { formatDate } from '@/utils/timeUtil';
@@ -62,7 +65,20 @@ const baseURL = import.meta.env.VITE_BASE_API;
 const contactUser = ref();
 const uid = ref(-1);
 const text = ref('');
+const currentPage = ref(1);
 const chatMessagesRef = ref<HTMLDivElement>();
+
+interface ChatSocket {
+    code: number,
+    msg: string,
+    data: {
+        from: number,
+        to?: number,
+        content: string,
+        type: string,
+        timestamp: number
+    }
+}
 
 const send = async () => {
     text.value = text.value.trim();
@@ -79,6 +95,17 @@ const send = async () => {
         timestamp: new Date().getTime()
     };
 
+    // 实时通讯
+    let myId = JSON.parse(localStorage.getItem('user')!).id;
+    api.socket.chat.send({
+        from: myId,
+        to: uid.value,
+        content: message.content,
+        type: message.type,
+        timestamp: message.timestamp
+    })
+
+    // 存入数据库
     api.message.sendMessage(uid.value, text.value, 'text').then((res: any) => {
         if (res.code != 200) {
             ElMessage({
@@ -96,6 +123,9 @@ const send = async () => {
 }
 
 const scrollTo = (position: 'top' | 'bottom') => {
+    if (!chatMessagesRef.value!) {
+        return
+    }
     let scrollHeight = position == 'top' ? 0 : chatMessagesRef.value!.scrollHeight;
     chatMessagesRef.value?.scrollTo({
         top: scrollHeight
@@ -106,26 +136,59 @@ const getMessage = async (_contactUser: {
     id: number;
     avatar: string;
     nickname: string;
-}) => {
+} | undefined) => {
     contactUser.value = _contactUser;
+    if (_contactUser == undefined) {
+        return;
+    }
     uid.value = _contactUser.id;
     messages.value.splice(0, messages.value.length);
+    currentPage.value = 1;
     await pageMessages(_contactUser.id);
     scrollTo('bottom');
 }
 
 const pageMessages = async (uid: number) => {
-    await api.message.pageMessages({ id: uid, current: 1, size: 100 }).then((res: any) => {
+    await api.message.pageMessages({ id: uid, current: currentPage.value, size: 10 }).then((res: any) => {
         messages.value?.splice(0, 0, ...res.data.list);
     })
 }
 
 export interface ChatMainInstance {
     getMessage: Function;
+    sendSocketMessage: Function;
+}
+
+const chatMessagesScroll = async (e: Event) => {
+    let tmpHeight: number = chatMessagesRef.value?.scrollHeight!;
+    if (chatMessagesRef.value?.scrollTop == 0) {
+        currentPage.value++;
+        await pageMessages(uid.value);
+        chatMessagesRef.value.scrollTo({
+            top: chatMessagesRef.value.scrollHeight - tmpHeight
+        })
+    }
+}
+
+const sendSocketMessage = async (data: {
+    from: number,
+    to?: number,
+    content: string,
+    type: string,
+    timestamp: number
+}) => {
+    await messages.value.push({
+        senderId: data.from,
+        receiverId: data.to!,
+        content: data.content,
+        type: data.type,
+        timestamp: data.timestamp
+    });
+    scrollTo('bottom');
 }
 
 defineExpose({
-    getMessage
+    getMessage, sendSocketMessage
 })
 </script>
 

@@ -47,6 +47,7 @@ const baseURL = import.meta.env.VITE_BASE_API;
 const selected = (index: number, contactUser: any) => {
     if (actionIndex.value == index) {
         actionIndex.value = -1;
+        emit('getUid', undefined);
         return;
     }
     actionIndex.value = index;

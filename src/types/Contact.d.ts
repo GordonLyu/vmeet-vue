@@ -1,7 +1,7 @@
-export interface ContactList {
-    id: number
+export interface Contact {
+    id: number;
     avatar: string;
     username: string;
     nickname: string;
-    status?: number
+    status?: string;
 }

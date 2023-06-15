@@ -1,7 +1,7 @@
 <template>
     <div class="chat">
         <div class="chat-message" v-loading="loading.contact">
-            <ChatMessage @get-uid="test"></ChatMessage>
+            <ChatMessage @get-uid="selected"></ChatMessage>
         </div>
         <div class="chat-main">
             <ChatMain @open-setting="open" ref="chatMainRef"></ChatMain>
@@ -17,6 +17,7 @@ import ChatMessage from '@/components/Chat/ChatMessage.vue';
 import ChatMain, { type ChatMainInstance } from '@/components/Chat/ChatMain.vue';
 import ChatSetting from '@/components/Chat/ChatSetting.vue';
 import { onMounted, ref } from 'vue';
+import api from '@/api';
 
 const chatMainRef = ref<ChatMainInstance>();
 
@@ -36,10 +37,12 @@ const close = () => {
     isOpenChatSetting.value = false;
 }
 
-const test = (contactUser: any) => {
+const selected = (contactUser: any) => {
     chatMainRef.value?.getMessage(contactUser);
     loading.value.chatMain = true;
-    uid.value = contactUser.id;
+    if (contactUser != undefined) {
+        uid.value = contactUser.id;
+    }
 }
 
 
@@ -49,6 +52,14 @@ onMounted(() => {
     // alert(messageList)
 })
 
+api.socket.chat.onmessage(async (res: string) => {
+    let data = JSON.parse(res).data;
+    if (data.type == 'tip') {
+        return;
+    }
+    chatMainRef.value!.sendSocketMessage(data);
+
+})
 </script>
 <style>
 html,
