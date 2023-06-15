@@ -4,7 +4,7 @@
             <div class="bg">
                 <div class="logo"><span>V</span><span>Meet</span></div>
                 <div class="bg-content">
-                    <img src="/public/imgs/login-cover.png" alt="">
+                    <img src="@/assets/imgs/login-cover.png" alt="">
                 </div>
             </div>
             <form class="register" @submit.prevent="submit">
