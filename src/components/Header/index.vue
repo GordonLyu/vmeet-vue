@@ -19,6 +19,7 @@
 </template>
 
 <script setup lang="ts">
+import api from '@/api';
 import Avatar, { type DropdownConfig } from '@/components/Avatar/index.vue'
 
 const baseURL = import.meta.env.VITE_BASE_API;
@@ -30,7 +31,7 @@ const props = defineProps<{
 
 const dropdownConfig: DropdownConfig[] = [{
     name: "个人中心",
-    to: '/settings'
+    to: `/person/${JSON.parse(localStorage.getItem('user')!).id}`
 }, {
     name: '清理缓存',
     click: (e: Event) => {
@@ -49,6 +50,7 @@ const dropdownConfig: DropdownConfig[] = [{
         console.log("退出登录");
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+        api.socket.chat.close();
         location.reload();
     }
 }]
