@@ -4,7 +4,7 @@
             <div class="bg">
                 <div class="logo"><span>V</span><span>Meet</span></div>
                 <div class="bg-content">
-                    <img src="/public/imgs/login-cover.png" alt="">
+                    <img src="@/assets/imgs/login-cover.png" alt="">
                 </div>
             </div>
             <form class="login" @submit.prevent="submit">
@@ -35,6 +35,7 @@
 
 <script setup lang="ts">
 import api from '@/api';
+import type { LoginResponse } from '@/types/User';
 import { ElMessage } from 'element-plus/lib/components/index.js';
 import { reactive, ref } from 'vue';
 
@@ -51,6 +52,7 @@ const submit = () => {
     }
     loading.value = true;
     api.user.login(formData).then((res: any) => {
+        const userData: LoginResponse = res.data;
         loading.value = false;
         if (res.code == '200') {
             ElMessage({
@@ -59,12 +61,13 @@ const submit = () => {
                 message: res.msg
             })
             let user = {
-                id: res.data.id,
-                nickname: res.data.nickname,
-                avatar: res.data.avatar
+                id: userData.id,
+                username: userData.username,
+                nickname: userData.nickname,
+                avatar: userData.avatar
             }
             localStorage.setItem('user', JSON.stringify(user));
-            localStorage.setItem('token', res.data.token);
+            localStorage.setItem('token', userData.token);
             location.reload();
         } else {
             ElMessage({
