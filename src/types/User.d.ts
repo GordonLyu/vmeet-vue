@@ -2,12 +2,21 @@ export interface User {
     id: number,
     nickname: string,
     username: string,
-    avatar: string
+    avatar: string,
+    token?: string
 }
 
 export interface Login {
     username: string;
     password: string;
+}
+
+export interface LoginResponse {
+    id: number;
+    username: string;
+    nickname: string;
+    avatar: string;
+    token: string;
 }
 
 export interface Register {
