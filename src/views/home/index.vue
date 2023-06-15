@@ -27,10 +27,8 @@ const user = JSON.parse(localStorage.getItem('user')!);
 const getMenuItemData = (item: any) => {
   title.value = item.title;
 }
-onMounted(() => {
-  let uid = JSON.parse(localStorage.getItem('user')!).id;
+let uid = JSON.parse(localStorage.getItem('user')!).id;
   api.socket.chat.connect(uid);
-})
 
 // onUnmounted(() => {
 //   api.socket.chat.close();
