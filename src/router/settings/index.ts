@@ -16,6 +16,10 @@ for (const path in modules) {
 export default [{
     path: '/settings',
     name: 'settings',
+    meta: {
+        title: '设置',
+        icon: ''
+    },
     redirect: 'settings/account',
     component: settings,
     children: route
