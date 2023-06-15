@@ -14,8 +14,24 @@ export const getOneContact = (uid: number) => {
     return request.get(`/contact/${uid}`);
 }
 
+/**
+ * 获取待接受添加联系人列表
+ */
+export const getWaitAddContactList = () => {
+    return request.get('/contact/wait/add');
+}
 
+/**
+ * 获取申请待被同意联系人列表
+ */
+export const getWaitAgreeContactList = () => {
+    return request.get('/contact/wait/agree');
+}
 
-export const addContact = () => {
-    return request.get(`/add`);
+/**
+ * 添加一位联系人
+ * @param username 用户名
+ */
+export const addContactByUsername = (username: string) => {
+    return request.post(`/contact/add`, JSON.stringify({ username }));
 }

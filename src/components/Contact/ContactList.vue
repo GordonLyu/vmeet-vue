@@ -1,25 +1,61 @@
 <template>
+    <AddContactDialog :open="addContactDialog" @close="addContactDialog = false" />
     <div class="contact">
         <div class="header">
             <div class="search">
-                <input type="text">
-                <div class="add" @click="addContact">
-                    <el-icon :size="26">
-                        <Icon icon="mdi:add" />
-                    </el-icon>
-                </div>
+                <input type="text" v-model="searchText" @input="searchContact" placeholder="搜索联系人">
+                <el-tooltip content="添加联系人" effect="light">
+                    <div class="add" @click="addContactDialog = true" content="添加联系人">
+                        <el-icon :size="26">
+                            <Icon icon="mdi:add" />
+                        </el-icon>
+                    </div>
+                </el-tooltip>
             </div>
         </div>
         <div class="list -scrollbar" v-loading="loading">
-            <div v-for="item, index in contacts" @click="selected(index, item)" :key="item.id"
-                :class="`item ${actionIndex == index ? 'action' : ''}`">
-                <div class="avatar">
-                    <el-avatar :src="baseURL + item.avatar"></el-avatar>
-                </div>
-                <div class="content">
-                    <div class="name">{{ item.nickname }}</div>
+
+            <!-- 联系人列表 -->
+            <div v-for="item, index in contacts" @click="selected(item)">
+                <div :key="item.id" :class="`item ${actionIndex == item.id ? 'action' : ''}`">
+                    <div class="avatar">
+                        <el-avatar :src="baseURL + item.avatar"></el-avatar>
+                    </div>
+                    <div class="content">
+                        <div class="name">{{ item.nickname }}</div>
+                        <p v-if="searching">{{ item.username }}</p>
+                    </div>
                 </div>
             </div>
+            <el-collapse :accordion="true" @change="collapseChanged" v-model="actionCollapseName">
+                <el-collapse-item title="新联系人" name="1" v-if="newContacts.length != 0">
+                    <div v-for="item, index in newContacts" @click="selected(item)">
+                        <div :key="item.id" :class="`item ${actionIndex == item.id ? 'action' : ''}`">
+                            <div class="avatar">
+                                <el-avatar :src="baseURL + item.avatar"></el-avatar>
+                            </div>
+                            <div class="content">
+                                <div class="name">{{ item.nickname }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-if="newContacts.length == 0" style="text-align: center;">未有联系人申请</div>
+                </el-collapse-item>
+                <el-collapse-item title="已发送添加联系人申请" name="2">
+                    <div v-for="item, index in appliedAddContacts" @click="selected(item)"
+                        v-if="appliedAddContacts.length != 0">
+                        <div :key="item.id" :class="`item ${actionIndex == item.id ? 'action' : ''}`">
+                            <div class="avatar">
+                                <el-avatar :src="baseURL + item.avatar"></el-avatar>
+                            </div>
+                            <div class="content">
+                                <div class="name">{{ item.nickname }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-if="appliedAddContacts.length == 0" style="text-align: center;">联系人已全部同意申请添加</div>
+                </el-collapse-item>
+            </el-collapse>
         </div>
     </div>
 </template>
@@ -27,42 +63,111 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import api from '@/api';
-import type { User } from '@/types/User';
+import type { Contact } from '@/types/Contact';
 import { Icon } from '@iconify/vue/dist/iconify.js';
-
+import AddContactDialog from './components/AddContactDialog.vue'
+const addContactDialog = ref(false);
 const baseURL = import.meta.env.VITE_BASE_API;
 
 const emit = defineEmits(['selected'])
 
-const actionIndex = ref(-1)
-const contacts = ref<User[]>([]);
+const actionCollapseName = ref('0');
+const actionIndex = ref(-1);
+const searchText = ref('');
+const tempContacts = ref<Contact[]>([]);
+const contacts = ref<Contact[]>([]);
+const newContacts = ref<Contact[]>([]);
+const appliedAddContacts = ref<Contact[]>([]);
 const loading = ref(true);
 
-const selected = (index: number, user: User) => {
-    if (actionIndex.value == index) {
+const selected = (user: Contact) => {
+    if (actionIndex.value == user.id) {
         actionIndex.value = -1;
         emit('selected', null);
         return;
     }
-    actionIndex.value = index;
+    actionIndex.value = user.id;
     emit('selected', user);
 }
 
-const addContact = () => {
-    
-}
 
 onMounted(() => {
-    api.contact.getContacts().then((res: any) => {
-        contacts.value = res.data;
+    api.contact.getContacts().then(async (res: any) => {
+        contacts.value = [...res.data.filter((item: Contact) => {
+            item.status = 'added';
+            return item;
+        })];
         loading.value = false;
+
+        api.contact.getWaitAddContactList().then(res => {
+            res.data.forEach((item: Contact) => {
+                item.status = 'waitAdd'
+                newContacts.value.splice(0, 0, item)
+            })
+            if (res.data.length != 0) {
+                actionCollapseName.value = '1';
+            }
+        })
+
+        api.contact.getWaitAgreeContactList().then(res => {
+            res.data.forEach((item: Contact) => {
+                item.status = 'waitAgree'
+                appliedAddContacts.value.splice(0, 0, item)
+            })
+
+        })
     })
 })
+
+const collapseChanged = (e: string) => {
+    if (e == '') {
+        emit('selected', null);
+    }
+}
+
+let searching = ref(false);
+const searchContact = () => {
+    emit('selected', null);
+    let text = searchText.value;
+    let t: Contact[] = [];
+    if (text == '') {
+        t = [...contacts.value];
+        contacts.value.splice(0, contacts.value.length, ...tempContacts.value);
+        searching.value = false;
+    } else {
+        if (!searching.value) {
+            searching.value = true;
+            tempContacts.value.splice(0, tempContacts.value.length, ...contacts.value);
+        }
+        contacts.value.splice(0, contacts.value.length);
+        contacts.value.push(...tempContacts.value.filter(item => {
+            if (item.nickname.includes(text) || item.username.includes(text)) {
+                return item;
+            }
+        }))
+    }
+
+    if (contacts.value.length == 0 && text == '') {
+        contacts.value = t;
+    }
+}
 
 
 </script>
 
 <style scoped>
+:deep(.el-collapse-item__wrap) {
+    padding: 10px 0;
+    padding-right: 20px;
+}
+
+:deep(.el-collapse-item__content) {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+
 .contact {
     width: 100%;
     height: 100%;

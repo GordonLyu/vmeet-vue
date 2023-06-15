@@ -9,27 +9,33 @@
                 <div class="username"><span>用户名：</span>{{ props.user?.username }}</div>
             </div>
 
-            <div class="chat-mode">
+            <div class="chat-mode" v-if="user?.status == 'added'">
                 <div class="text" @click="to(props.user.id, '/chat')">消息</div>
                 <div class="call">音频</div>
                 <div class="video">视频</div>
             </div>
             <div class="option">
-                <el-button type="danger">删除联系人</el-button>
+                <el-button type="success" v-if="user?.status == 'waitAdd'"
+                    @click="agreeAdd(props.user.username)">添加联系人</el-button>
+                <el-button type="danger" v-if="user?.status == 'waitAdd'">拒绝</el-button>
+                <div v-if="user?.status == 'waitAgree'">等待对方同意添加联系人</div>
+                <el-button type="danger" @click="del" v-if="user?.status == 'added'">删除联系人</el-button>
             </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import api from '@/api';
 import Avatar from '@/components/Avatar/index.vue'
 import router from '@/router';
-import type { User } from '@/types/User';
+import type { Contact } from '@/types/Contact';
+import { ElMessage, ElMessageBox } from 'element-plus/lib/components/index.js';
 
 const baseURL = import.meta.env.VITE_BASE_API;
 
 const props = defineProps<{
-    user?: User;
+    user?: Contact;
 }>();
 
 const to = (uid: number, url: string) => {
@@ -50,6 +56,35 @@ const to = (uid: number, url: string) => {
     }
     localStorage.setItem('messageList-' + id, JSON.stringify(messageList));
     router.push(url);
+}
+
+const agreeAdd = (username: string) => {
+    api.contact.addContactByUsername(username).then((res: any) => {
+        if (res.code == 200) {
+            ElMessage({
+                type: 'success',
+                message: '添加成功'
+            })
+            location.reload();
+        }
+        console.log(res);
+    })
+}
+
+
+// 删除
+const del = () => {
+    ElMessageBox.confirm(`是否删除该联系人（${props.user?.nickname}）？`, '删除联系人', {
+        confirmButtonText: '删除',
+        cancelButtonText: '取消',
+        confirmButtonClass: 'chat-setting-del-confirm-button',
+        type: 'warning',
+    }).then(() => {
+        ElMessage({
+            type: 'warning',
+            message: '已删除联系人',
+        })
+    })
 }
 
 </script>
@@ -123,11 +158,14 @@ const to = (uid: number, url: string) => {
 }
 
 .option {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
     width: 100%;
     min-width: 80px;
     max-width: 300px;
     margin: 0 auto;
     margin-top: 40px;
-    text-align: center;
+    gap: 20px;
 }
 </style>
