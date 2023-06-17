@@ -16,7 +16,7 @@
                             <p></p>
                         </div>
                         <div class="avatar">
-                            <Avatar :src="'/public/imgs/test.jpg'"></Avatar>
+                            <Avatar :src="baseURL + avatar"></Avatar>
                             <div class="icon">
                                 <el-icon size="40">
                                     <Icon icon="bxs:edit"></Icon>
@@ -76,11 +76,13 @@ import ChangeAvatarDialog from './components/ChangeAvatarDialog.vue';
 import Avatar from '@/components/Avatar/index.vue'
 import { Icon } from '@iconify/vue/dist/iconify.js';
 
+const baseURL = import.meta.env.VITE_BASE_API;
 const changePasswordDialog = ref(false);
 const changeNicknameDialog = ref(false);
 const changeAvatarDialog = ref(false)
 const isShow = ref(true);
 const nickname = ref(JSON.parse(localStorage.getItem('user')!).nickname);
+const avatar = JSON.parse(localStorage.getItem('user')!).avatar;
 
 const reload = () => {
     nickname.value = JSON.parse(localStorage.getItem('user')!).nickname;
