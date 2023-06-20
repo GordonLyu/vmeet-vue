@@ -12,7 +12,7 @@
             <div class="chat-mode" v-if="user?.status == 'added'">
                 <div class="text" @click="to(props.user.id, '/chat')">消息</div>
                 <div class="call">音频</div>
-                <div class="video">视频</div>
+                <div class="video" @click="toVideo(props.user.id)">视频</div>
             </div>
             <div class="option">
                 <el-button type="success" v-if="user?.status == 'waitAdd'"
@@ -56,6 +56,13 @@ const to = (uid: number, url: string) => {
     }
     localStorage.setItem('messageList-' + id, JSON.stringify(messageList));
     router.push(url);
+}
+
+const toVideo = (id: number) => {
+    let myID = JSON.parse(localStorage.getItem('user')!).id;
+    window.open(`/video-chat/${myID}?to=${id}`, "_blank", "resizable=1,height=1000,width=1600");
+    window.opener = null;
+
 }
 
 const agreeAdd = (username: string) => {
