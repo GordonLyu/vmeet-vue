@@ -1,7 +1,7 @@
 <template>
     <div class="chat">
         <div class="chat-message" v-loading="loading.contact">
-            <ChatMessage @get-uid="selected"></ChatMessage>
+            <ChatMessage @get-uid="selected" ref="ChatMessageRef"></ChatMessage>
         </div>
         <div class="chat-main">
             <ChatMain @open-setting="open" ref="chatMainRef"></ChatMain>
@@ -13,13 +13,16 @@
 </template>
 
 <script setup lang="ts">
-import ChatMessage from '@/components/Chat/ChatMessage.vue';
+import ChatMessage, { type ChatMessageInstance } from '@/components/Chat/ChatMessage.vue';
 import ChatMain, { type ChatMainInstance } from '@/components/Chat/ChatMain.vue';
 import ChatSetting from '@/components/Chat/ChatSetting.vue';
 import { onMounted, ref } from 'vue';
 import api from '@/api';
+import { useRoute } from 'vue-router';
+import { useChatStore } from '@/stores/counter';
 
 const chatMainRef = ref<ChatMainInstance>();
+const ChatMessageRef = ref<ChatMessageInstance>()
 
 const isOpenChatSetting = ref(false);
 const loading = ref({
@@ -47,9 +50,9 @@ const selected = (contactUser: any) => {
 
 
 onMounted(() => {
-    // let uid = JSON.parse(localStorage.getItem('user')!).id;
-    // let messageList = JSON.parse(localStorage.getItem('messageList-' + uid)!);
-    // alert(messageList)
+    if (useChatStore().$state.selectFirst) {
+        ChatMessageRef.value?.selectFirst();
+    }
 })
 
 api.socket.chat.onmessage(async (res: string) => {
@@ -58,7 +61,6 @@ api.socket.chat.onmessage(async (res: string) => {
         return;
     }
     chatMainRef.value!.sendSocketMessage(data);
-
 })
 </script>
 <style>

@@ -19,7 +19,7 @@
                     @click="agreeAdd(props.user.username)">添加联系人</el-button>
                 <el-button type="danger" v-if="user?.status == 'waitAdd'">拒绝</el-button>
                 <div v-if="user?.status == 'waitAgree'">等待对方同意添加联系人</div>
-                <el-button type="danger" @click="del" v-if="user?.status == 'added'">删除联系人</el-button>
+                <el-button type="danger" @click="del(props.user.id)" v-if="user?.status == 'added'">删除联系人</el-button>
             </div>
         </div>
     </div>
@@ -31,6 +31,7 @@ import Avatar from '@/components/Avatar/index.vue'
 import router from '@/router';
 import type { Contact } from '@/types/Contact';
 import { ElMessage, ElMessageBox } from 'element-plus/lib/components/index.js';
+import { useChatStore } from '@/stores/counter'
 
 const baseURL = import.meta.env.VITE_BASE_API;
 
@@ -55,6 +56,7 @@ const to = (uid: number, url: string) => {
         messageList.push(uid);
     }
     localStorage.setItem('messageList-' + id, JSON.stringify(messageList));
+    useChatStore().$state.selectFirst = true;
     router.push(url);
 }
 
@@ -80,16 +82,26 @@ const agreeAdd = (username: string) => {
 
 
 // 删除
-const del = () => {
+const del = (uid: number) => {
     ElMessageBox.confirm(`是否删除该联系人（${props.user?.nickname}）？`, '删除联系人', {
         confirmButtonText: '删除',
         cancelButtonText: '取消',
         confirmButtonClass: 'chat-setting-del-confirm-button',
         type: 'warning',
     }).then(() => {
-        ElMessage({
-            type: 'warning',
-            message: '已删除联系人',
+        api.contact.delOneContact(uid).then((res: any) => {
+            if (res.code == 200) {
+                ElMessage({
+                    type: 'warning',
+                    message: '已删除联系人',
+                })
+                location.reload();
+            } else {
+                ElMessage({
+                    type: 'warning',
+                    message: '删除联系人失败，用户不存在或服务器出现错误',
+                })
+            }
         })
     })
 }

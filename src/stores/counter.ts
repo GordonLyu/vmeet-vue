@@ -10,3 +10,9 @@ export const useCounterStore = defineStore('counter', () => {
 
   return { count, doubleCount, increment }
 })
+
+
+export const useChatStore = defineStore('chat', () => {
+  const selectFirst = ref(false)
+  return { selectFirst }
+})

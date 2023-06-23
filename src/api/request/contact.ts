@@ -35,3 +35,7 @@ export const getWaitAgreeContactList = () => {
 export const addContactByUsername = (username: string) => {
     return request.post(`/contact/add`, JSON.stringify({ username }));
 }
+
+export const delOneContact = (uid: number) => {
+    return request.delete(`/contact/${uid}`);
+}

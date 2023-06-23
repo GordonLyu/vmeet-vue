@@ -27,7 +27,7 @@
             <div class="input">
                 <textarea class="-scrollbar" v-model="text" @keyup.alt.enter="send" ref="textareaRef"></textarea>
             </div>
-            <div>
+            <div class="send-btn">
                 <el-button @click="send">发送</el-button>
             </div>
         </div>
@@ -333,5 +333,9 @@ defineExpose({
     background-color: #fff;
     font-size: 1.2em;
     font-family: '微软雅黑';
+}
+
+.send-btn {
+    margin-left: auto;
 }
 </style>

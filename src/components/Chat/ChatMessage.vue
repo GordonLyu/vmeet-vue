@@ -28,6 +28,7 @@
 import { onMounted, ref } from 'vue';
 import { formatDate } from '@/utils/timeUtil';
 import api from '@/api';
+import { useChatStore } from '@/stores/counter';
 
 const emit = defineEmits(['getUid'])
 
@@ -41,6 +42,7 @@ const list = ref<{
 }[]>([]);
 
 const actionIndex = ref(-1)
+const isLoaded = ref(false);
 
 const baseURL = import.meta.env.VITE_BASE_API;
 
@@ -79,8 +81,30 @@ onMounted(async () => {
                 })
             })
         }
+        isLoaded.value = true;
         console.log(list.value);
     }
+})
+
+
+
+// 选择第一个
+const selectFirst = () => {
+    let t = setInterval(() => {
+        if (isLoaded.value) {
+            selected(0, list.value[0]);
+            clearInterval(t);
+            useChatStore().$state.selectFirst = false;
+        }
+    }, 200)
+}
+
+export interface ChatMessageInstance {
+    selectFirst: Function
+}
+
+defineExpose({
+    selectFirst
 })
 
 
