@@ -8,7 +8,7 @@
                 </el-form-item>
                 <el-form-item label="验证码" :label-width="'140px'">
                     <div style="display: flex; gap: 15px;">
-                        <el-input v-model="form.code" autocomplete="off" type="password" />
+                        <el-input v-model="form.code" autocomplete="off" type="text" />
                         <el-button @click="sendCode" :loading="codeConfig.codeLoading" :disabled="!isAllowSendCode">
                             {{ codeConfig.time > 0 ? codeConfig.time : '发送验证码' }}
                         </el-button>
