@@ -119,14 +119,13 @@ const submit = () => {
 .login-page {
     position: relative;
     display: flex;
-    justify-content: center;
-    align-items: center;
     height: 100vh;
     background-color: #f5f5f5;
     overflow: auto;
 }
 
 .main {
+    margin: auto;
     position: relative;
     display: flex;
     height: 600px;
