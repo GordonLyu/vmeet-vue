@@ -106,14 +106,6 @@ export const changeNickname = (nicknameData: { newNickname: string }) => {
     return request.put('/user/change-nickname', JSON.stringify(nicknameData))
 }
 
-/**
- * 上传头像
- */
-export const uploadAvatar = () => {
-
-
-}
-
 export const getContactList = () => {
 
 }

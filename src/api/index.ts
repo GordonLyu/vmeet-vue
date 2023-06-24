@@ -6,7 +6,8 @@ import * as socket from './socket'
 import * as user from './request/user'
 import * as contact from './request/contact'
 import * as message from './request/message'
+import * as file from './request/file'
 
 export default {
-    mockTest, mockUser, mockMessage, mockContact, socket, user, contact, message
+    mockTest, mockUser, mockMessage, mockContact, socket, user, contact, message, file
 }

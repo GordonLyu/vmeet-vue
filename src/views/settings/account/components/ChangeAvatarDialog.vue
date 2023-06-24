@@ -4,8 +4,7 @@
             @close-auto-focus="emits('close')">
             <el-form :model="form" :label-position="'top'" @submit.prevent="submit">
                 <el-form-item label="头像" :label-width="'140px'">
-                    <!-- <el-input v-model="form.newNickname" autocomplete="off" type="text" /> -->
-                    <Upload :isImg="true" :is-cropper="true"></Upload>
+                    <Upload :isImg="true" :is-cropper="true" @get-file="getFile"></Upload>
                 </el-form-item>
             </el-form>
             <template #footer>
@@ -23,6 +22,7 @@ import api from '@/api';
 import { ElMessage } from 'element-plus/lib/components/index.js';
 import { reactive, ref } from 'vue';
 import Upload from '@/components/Upload';
+import router from '@/router';
 
 let user = JSON.parse(localStorage.getItem('user')!);
 const props = defineProps<{
@@ -32,29 +32,24 @@ const props = defineProps<{
 const emits = defineEmits(['close'])
 
 const loading = ref(false);
-const form = reactive({
-    id: 0,
-    newNickname: user.nickname
-})
+const form = new FormData();
+
+
+const getFile = (file: File) => {
+    form.append("File", file);
+}
 
 const submit = () => {
     loading.value = true;
 
-    form.id = user.id;
-    if (form.newNickname == "") {
-        ElMessage({
-            type: 'warning',
-            message: '昵称不能为空'
-        })
-        return;
-    }
-    api.user.changeNickname(form).then((res: any) => {
+    api.file.uploadAvatar(form).then((res: any) => {
+        console.log(res);
+
         if (res.code == 200) {
             ElMessage({
                 type: 'success',
-                message: '昵称修改成功'
+                message: '已修改头像'
             })
-            user.nickname = form.newNickname;
             localStorage.setItem('user', JSON.stringify(user))
             emits('close');
             location.reload();
