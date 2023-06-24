@@ -15,6 +15,8 @@ import { sleep } from '@/utils/timeUtil'
 const typesRef = ref<HTMLDivElement>();
 const selTypeRef = ref<HTMLSpanElement>();
 const btnRef = ref<HTMLButtonElement>();
+// 创建音频上下文  
+const audioCtx = new AudioContext();
 
 // 十二平均律公比
 const q = Math.pow(440 / 220, 1 / 12);
@@ -29,7 +31,7 @@ const audio_data_list = [0];
 // C调
 const addToneList = () => {
     // C4开始
-    for (let i = 0, j = -9, k = 1; i < 20; i++, j += 2, k++) {
+    for (let i = 0, j = -9, k = 1; i < 50; i++, j += 2, k++) {
         if (k == 4) {
             j--;
         } else if (k == 7) {
@@ -62,17 +64,18 @@ const kano2 = [3, 2, 1, 0, -1, -2, -1, 0]
 const start = async () => {
     for (let i = 0; i < kano1.length; i++) {
         // index = arr[i % (4 * 4)];    
+
         await sleep(1000);
-        if (kano1[i] == 0) {
-            continue;
-        }
+        // if (kano1[i] == 0) {
+        //     continue;
+        // }
         // create();
         // index = arr2[i % (4 * 4)]
         // create();
         index = kano1[i];
         create();
-        index = kano2[i] + 7;
-        create();
+        // index = kano2[i] + 7;
+        // create();
     }
 }
 
@@ -89,10 +92,9 @@ const ascStart = async () => {
 
 
 function create() {
-    let volBl = 0.5;
+    let volBl = 0.1;
     btnRef.value!.innerHTML = `基础音：${index === 7 ? '+1' : (index)}`
-    // 创建音频上下文  
-    const audioCtx = new AudioContext();
+
     // 创建音调控制对象
     const oscillator = audioCtx.createOscillator();
     // 创建音量控制对象  
@@ -118,11 +120,11 @@ function create() {
     gainNode.gain.exponentialRampToValueAtTime(0.1 * volBl, audioCtx.currentTime + 2);
     // 1秒后停止声音 
     oscillator.stop(audioCtx.currentTime + 2);
-    if (index >= audio_data_list.length - 1) {
-        index = 0
-    } else {
-        index++
-    }
+    // if (index >= audio_data_list.length - 1) {
+    //     index = 0
+    // } else {
+    //     index++
+    // }
 }
 </script>
 
