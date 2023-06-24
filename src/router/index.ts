@@ -3,7 +3,7 @@ import adminRouter from './admin'
 import settingsRouter from './settings'
 import api from '@/api'
 import { ElMessage } from 'element-plus/lib/components/index.js'
-import type { User } from '@/types/User'
+import type { LoginResponse } from '@/types/User'
 
 
 // 群体导入~
@@ -52,6 +52,10 @@ const routes: Readonly<RouteRecordRaw[]> = [{
   name: 'login',
   component: () => import('@/views/login/index.vue')
 }, {
+  path: '/mail-login',
+  name: 'mailLogin',
+  component: () => import('@/views/login/byEmail.vue')
+}, {
   path: '/register',
   name: 'register',
   component: () => import('@/views/register/index.vue')
@@ -67,7 +71,7 @@ const router = createRouter({
   routes: routes
 })
 
-const whitelist = ['/login', '/register', '/test/chat', '/test/chatBox', '/test/videoChat', "/test/audio"]
+const whitelist = ['/login', '/mail-login', '/register', '/test/chat', '/test/chatBox', '/test/videoChat', "/test/audio"]
 
 router.beforeEach((to, from, next) => {
   if (localStorage.getItem('token') && to.path == '/login' || localStorage.getItem('token') && to.path == '/register') {
@@ -80,12 +84,13 @@ router.beforeEach((to, from, next) => {
   } else if (localStorage.getItem('token')) {
     api.user.isLogin().then((res: any) => {
       if (res.code == 200) {
-        let userData: User = res.data;
+        let userData: LoginResponse = res.data;
         localStorage.setItem('user', JSON.stringify({
           id: userData.id,
           username: userData.username,
           nickname: userData.nickname,
-          avatar: userData.avatar
+          avatar: userData.avatar,
+          email: userData.email
         }));
         next();
       } else {
@@ -94,7 +99,7 @@ router.beforeEach((to, from, next) => {
       }
     }).catch(error => {
       console.log(error);
-      
+
       ElMessage({
         type: 'error',
         message: '未连接服务器'

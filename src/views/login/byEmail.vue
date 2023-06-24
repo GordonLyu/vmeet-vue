@@ -1,5 +1,5 @@
 <template>
-    <div class="register-page">
+    <div class="login-page">
         <div class="main">
             <div class="bg">
                 <div class="logo"><span>V</span><span>Meet</span></div>
@@ -7,36 +7,33 @@
                     <img src="@/assets/imgs/login-cover.png" alt="">
                 </div>
             </div>
-            <form class="register" @submit.prevent="submit">
-                <h1 class="title">注册</h1>
-                <p>创建您的账号</p>
+            <form class="login" @submit.prevent="submit">
+                <h1 class="title">邮箱登录</h1>
+                <p>登入您的账号</p>
                 <div class="input">
                     <div>
-                        <input type="text" autosave="false" v-model="formData.username" required>
-                        <label class="text">用户名</label>
+                        <input type="mail" autosave="false" v-model="formData.email" required>
+                        <label class="text">邮箱</label>
                         <div class="line"></div>
                     </div>
-                    <div>
-                        <input type="text" autosave="false" v-model="formData.nickname" required>
-                        <label class="text">昵称</label>
+                    <div class="code">
+                        <input type="text" autosave="false" v-model="formData.code" required>
+                        <label class="text">验证码</label>
                         <div class="line"></div>
+                        <el-button class="btn" @click="sendCode" :loading="codeConfig.codeLoading"
+                            :disabled="!isAllowSendCode">
+                            {{ codeConfig.time > 0 ? codeConfig.time : '发送验证码' }}
+                        </el-button>
                     </div>
-                    <div>
-                        <input type="password" autosave="false" v-model="formData.password" required>
-                        <label class="text">密码</label>
-                        <div class="line"></div>
-                    </div>
-                    <div>
-                        <input type="password" autosave="false" v-model="repassword" required>
-                        <label class="text">再次输入密码</label>
-                        <div class="line"></div>
-                    </div>
+
+
                 </div>
-                <div class="option">
-                    <input type="submit" value="注册">
+                <div class="option" v-loading="loading">
+                    <input type="submit" value="登录">
                 </div>
                 <div class="switch">
-                    已有账号？<a href="login">登录</a>
+                    <p><a href="/login">切换邮箱密码登录</a></p>
+                    没有账号？<a href="register">注册</a>
                 </div>
             </form>
         </div>
@@ -46,50 +43,93 @@
 <script setup lang="ts">
 import api from '@/api';
 import router from '@/router';
-import type { Register } from '@/types/User';
+import type { LoginResponse } from '@/types/User';
 import { ElMessage } from 'element-plus/lib/components/index.js';
-import { ref, reactive } from 'vue';
+import { reactive, ref } from 'vue';
 
-const repassword = ref('')
-
-const formData = reactive<Register>({
-    username: '',
-    nickname: '',
-    password: ''
+const loading = ref(false);
+const isAllowSendCode = ref(true);
+const codeConfig = reactive({
+    codeLoading: false,
+    time: 0
 })
 
-const submit = () => {
-    if (formData.password != repassword.value) {
-        ElMessage({
-            type: 'warning',
-            message: '再次输入密码不一致'
-        })
-        repassword.value = ''
-        return;
-    }
+const formData = reactive({
+    email: '',
+    code: ''
+})
 
-    if (formData.nickname == '') {
-        formData.nickname = formData.username;
-    }
 
-    api.user.register(formData).then((res: any) => {
+
+const countdown = async () => {
+    let t = setInterval(() => {
+        codeConfig.time--;
+        if (codeConfig.time <= 0) {
+            isAllowSendCode.value = true;
+            clearInterval(t);
+        }
+    }, 1000)
+}
+
+const sendCode = () => {
+    codeConfig.codeLoading = true;
+    api.user.loginByEmail(formData.email).then((res: any) => {
+        console.log(res);
         if (res.code == 200) {
             ElMessage({
                 type: 'success',
-                message: '注册成功'
-            })
-            router.push({
-                path: '/login',
-                replace: true
+                message: '已发送邮箱验证码'
             })
         } else {
             ElMessage({
                 type: 'error',
-                message: '注册失败，服务器可能出了错误~'
+                message: res.msg
             })
         }
+        isAllowSendCode.value = false;
+        codeConfig.time = res.data
+        codeConfig.codeLoading = false;
+        countdown();
     })
 }
+
+
+const submit = () => {
+    if (loading.value) {
+        return;
+    }
+    loading.value = true;
+    api.user.loginEmailVerifyCode(formData.email, formData.code).then((res: any) => {
+        const userData: LoginResponse = res.data;
+        loading.value = false;
+        if (res.code == '200') {
+            ElMessage({
+                type: 'success',
+                grouping: true,
+                message: res.msg
+            })
+            let user = {
+                id: userData.id,
+                username: userData.username,
+                nickname: userData.nickname,
+                avatar: userData.avatar,
+                email: userData.email
+            }
+            localStorage.setItem('user', JSON.stringify(user));
+            localStorage.setItem('token', userData.token);
+            router.push('/login')
+        } else {
+            ElMessage({
+                type: 'error',
+                grouping: true,
+                message: res.msg
+            })
+        }
+    }).catch((err) => {
+        loading.value = false;
+    })
+}
+
 </script>
 
 <style scoped>
@@ -118,10 +158,12 @@ const submit = () => {
 .logo span:nth-of-type(2) {
     padding: 2px;
     background-color: #0db8de;
+    border-radius: 4px;
     color: #fff;
 }
 
-.register-page {
+.login-page {
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -160,7 +202,6 @@ const submit = () => {
     overflow: hidden;
 }
 
-
 .bg-content img {
     width: 100%;
     height: 100%;
@@ -173,16 +214,18 @@ const submit = () => {
         width: 0;
     }
 
-    .register {
+    .login {
         width: 100%;
+        max-width: none;
+        min-width: none;
     }
 }
 
-.register {
+.login {
     display: flex;
     flex-direction: column;
-    box-sizing: border-box;
     align-items: center;
+    box-sizing: border-box;
     min-width: 200px;
     padding: 20px 60px;
     gap: 10px;
@@ -206,7 +249,7 @@ const submit = () => {
     font-size: 1.8em;
 }
 
-.register p {
+.login p {
     margin-top: -10px;
     color: #aaa;
 }
@@ -273,6 +316,7 @@ input {
     transition: .2s;
 }
 
+
 .input input:focus~.line {
     width: 100%;
 }
@@ -314,6 +358,16 @@ input[type=submit]:focus {
     color: white;
     box-shadow: 0 0 3px 0px #0db8de;
     background-color: #0db8de;
+}
+
+.code {
+    width: 50% !important;
+}
+
+.btn {
+    position: absolute;
+    top: 0;
+    right: -100%;
 }
 
 .switch {

@@ -18,6 +18,72 @@ export const register = (userRegister: Register) => {
 }
 
 /**
+ * 注册邮箱发送
+ */
+export const registerByEmail = () => {
+    return request.post('/user/register/send-mail');
+}
+
+export const verifyMailCode = () => {
+
+}
+
+/**
+ * 邮箱登录发送
+ */
+export const loginByEmail = (to: string) => {
+    return request.post('/user/login/send-mail', {
+        to: to
+    }, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    });
+}
+
+/**
+ * 验证邮箱登录验证码
+ */
+export const loginEmailVerifyCode = (email: string, code: string) => {
+    return request.post('/user/login/verify-mail', {
+        email: email,
+        code: code
+    }, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    });
+}
+
+/**
+ * 修改邮箱验证码发送
+ */
+export const sendChangeEmailCode = (to: string) => {
+    return request.post('/user/change-mail/send-mail', {
+        to: to
+    }, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    });
+}
+
+
+/**
+ * 验证修改邮箱验证码
+ */
+export const verifyChangeEmailCode = (email: string, code: string) => {
+    return request.post('/user/change-mail/verify-mail', {
+        email: email,
+        code: code
+    }, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    });
+}
+
+/**
  * 验证是否登录
  */
 export const isLogin = () => {
@@ -44,7 +110,7 @@ export const changeNickname = (nicknameData: { newNickname: string }) => {
  * 上传头像
  */
 export const uploadAvatar = () => {
-    
+
 
 }
 

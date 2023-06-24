@@ -26,6 +26,7 @@
                     <input type="submit" value="登录">
                 </div>
                 <div class="switch">
+                    <p><a href="/mail-login">切换邮箱登录</a></p>
                     没有账号？<a href="register">注册</a>
                 </div>
             </form>
@@ -64,7 +65,8 @@ const submit = () => {
                 id: userData.id,
                 username: userData.username,
                 nickname: userData.nickname,
-                avatar: userData.avatar
+                avatar: userData.avatar,
+                email: userData.email
             }
             localStorage.setItem('user', JSON.stringify(user));
             localStorage.setItem('token', userData.token);
@@ -202,7 +204,7 @@ const submit = () => {
 }
 
 .login p {
-    margin-top: -20px;
+    margin-top: -10px;
     color: #aaa;
 }
 

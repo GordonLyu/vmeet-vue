@@ -15,7 +15,7 @@ export const formatDate = (timestamp: number): string => {
     } else if (duration < fixedDuration) {
         return `${(duration / (60 * 1000)).toFixed()}分钟前`
     }
-    let date = new Date(timestamp).toLocaleString('chinese', { hour12: false,dateStyle:'short',timeStyle:'short' });
+    let date = new Date(timestamp).toLocaleString('chinese', { hour12: false, dateStyle: 'short', timeStyle: 'short' });
     return date;
 }
 

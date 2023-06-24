@@ -28,7 +28,20 @@
                 <textarea class="-scrollbar" v-model="text" @keyup.alt.enter="send" ref="textareaRef"></textarea>
             </div>
             <div class="send-btn">
-                <el-button @click="send">发送</el-button>
+                <!-- <el-button @click="send">发送</el-button> -->
+                <button @click="send">
+                    <div class="svg-wrapper-1">
+                        <div class="svg-wrapper">
+                            <svg height="24" width="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M0 0h24v24H0z" fill="none"></path>
+                                <path
+                                    d="M1.946 9.315c-.522-.174-.527-.455.01-.634l19.087-6.362c.529-.176.832.12.684.638l-5.454 19.086c-.15.529-.455.547-.679.045L12 14l6-8-8 6-8.054-2.685z"
+                                    fill="currentColor"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <span>发送</span>
+                </button>
             </div>
         </div>
     </div>
@@ -46,7 +59,10 @@ const props = defineProps<{
     noMore?: boolean;
     noTool?: boolean;
     class?: string;
-}>();
+    isGroup?: boolean;
+}>()
+
+const isGroup = ref(true);
 
 const emits = defineEmits(['openSetting'])
 const messages = ref<{
@@ -337,5 +353,62 @@ defineExpose({
 
 .send-btn {
     margin-left: auto;
+}
+
+
+.send-btn button {
+    font-family: inherit;
+    font-size: 20px;
+    background: #0086ff;
+    color: white;
+    padding: 6px 10px;
+    padding-left: 3px;
+    display: flex;
+    align-items: center;
+    border: none;
+    border-radius: 6px;
+    overflow: hidden;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.send-btn button span {
+    display: block;
+    margin-left: 0.3em;
+    font-size: 0.8em;
+    transition: all 0.3s ease-in-out;
+
+}
+
+.send-btn button svg {
+    display: block;
+    transform-origin: center center;
+    transition: transform 0.3s ease-in-out;
+}
+
+.send-btn button:hover .svg-wrapper {
+    animation: fly-1 0.6s ease-in-out infinite alternate;
+}
+
+.send-btn button:hover svg {
+    transform: translateX(1.2em) rotate(45deg) scale(1);
+}
+
+.send-btn button:hover span {
+    transform: translateX(5em);
+}
+
+.send-btn button:active {
+    transform: scale(0.95);
+}
+
+@keyframes fly-1 {
+    from {
+        transform: translateY(0.05em);
+    }
+
+    to {
+        transform: translateY(-0.05em);
+    }
 }
 </style>

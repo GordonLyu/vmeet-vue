@@ -3,6 +3,7 @@
         <ChangNicknameDialog :open="changeNicknameDialog" @close="changeNicknameDialog = false; reload();" />
         <ChangePasswordDialog :open="changePasswordDialog" @close="changePasswordDialog = false" />
         <ChangeAvatarDialog :open="changeAvatarDialog" @close="changeAvatarDialog = false" />
+        <ChangeEmailDialog :open="changeEmailDialog" @close="changeEmailDialog = false" />
         <div class="contain">
             <div class="title">
                 <h3>账户和密码</h3>
@@ -10,12 +11,12 @@
             </div>
             <div class="content">
                 <div class="list">
-                    <div class="item" @click="changeAvatarDialog = true">
+                    <div class="item avatar-item">
                         <div class="title">
                             <h4></h4>
                             <p></p>
                         </div>
-                        <div class="avatar">
+                        <div class="avatar" @click="changeAvatarDialog = true">
                             <Avatar :src="baseURL + avatar"></Avatar>
                             <div class="icon">
                                 <el-icon size="40">
@@ -25,6 +26,8 @@
                         </div>
                         <div></div>
                     </div>
+                </div>
+                <div class="list">
                     <div class="item" @click="changeNicknameDialog = true">
 
                         <div class="title">
@@ -32,7 +35,11 @@
                             <p></p>
                         </div>
                         <div>{{ nickname }}</div>
-                        <a href="#">修改</a>
+                        <a>
+                            <el-icon :size="20">
+                                <Icon icon="uiw:right"></Icon>
+                            </el-icon>
+                        </a>
                     </div>
                 </div>
 
@@ -44,15 +51,23 @@
                             <p></p>
                         </div>
                         <div class="mid"></div>
-                        <a href="#">修改</a>
+                        <a>
+                            <el-icon :size="20">
+                                <Icon icon="uiw:right"></Icon>
+                            </el-icon>
+                        </a>
                     </div>
-                    <div class="item">
+                    <div class="item" @click="changeEmailDialog = true">
                         <div class="title">
                             <h4>邮箱</h4>
                             <p>绑定的邮箱</p>
                         </div>
-                        <div class="mid"></div>
-                        <a href="#">绑定</a>
+                        <div class="mid">{{ email }}</div>
+                        <a>
+                            <el-icon :size="20">
+                                <Icon icon="uiw:right"></Icon>
+                            </el-icon>
+                        </a>
                     </div>
                     <div class="item">
                         <div class="title">
@@ -60,7 +75,11 @@
                             <p>注销期间，您有7天的时间决定撤销，7天过后账号将永远销毁</p>
                         </div>
                         <div class="mid"></div>
-                        <a href="#">注销</a>
+                        <a>
+                            <el-icon :size="20">
+                                <Icon icon="uiw:right"></Icon>
+                            </el-icon>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -73,16 +92,19 @@ import { ref } from 'vue';
 import ChangePasswordDialog from './components/ChangePasswordDialog.vue';
 import ChangNicknameDialog from './components/ChangNicknameDialog.vue';
 import ChangeAvatarDialog from './components/ChangeAvatarDialog.vue';
+import ChangeEmailDialog from './components/ChangeEmailDialog.vue';
 import Avatar from '@/components/Avatar/index.vue'
 import { Icon } from '@iconify/vue/dist/iconify.js';
 
 const baseURL = import.meta.env.VITE_BASE_API;
 const changePasswordDialog = ref(false);
 const changeNicknameDialog = ref(false);
-const changeAvatarDialog = ref(false)
+const changeAvatarDialog = ref(false);
+const changeEmailDialog = ref(false);
 const isShow = ref(true);
 const nickname = ref(JSON.parse(localStorage.getItem('user')!).nickname);
 const avatar = JSON.parse(localStorage.getItem('user')!).avatar;
+const email = ref(JSON.parse(localStorage.getItem('user')!).email);
 
 const reload = () => {
     nickname.value = JSON.parse(localStorage.getItem('user')!).nickname;
@@ -111,15 +133,35 @@ const reload = () => {
     height: 60px;
 }
 
+.contain .item.avatar-item {
+    background-color: #fff;
+    cursor: default;
+}
+
+.contain .item.avatar-item:hover {
+    background-color: #fff;
+}
+
 .avatar {
     position: relative;
+    cursor: pointer;
+    transition: .3s;
+}
+
+.avatar:hover {
+    transform: scale(0.95);
 }
 
 .avatar .icon {
     position: absolute;
     right: -10px;
     bottom: -10px;
-    color: #0db8de;
+    color: #497dff;
+    transition: .3s;
+}
+
+.avatar:hover .icon {
+    transform: scale(0.9);
 }
 
 :deep(.avatar) .el-avatar {
