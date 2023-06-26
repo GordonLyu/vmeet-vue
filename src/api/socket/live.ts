@@ -78,6 +78,7 @@ export const startVideo = (videoELement: HTMLMediaElement | undefined, V: boolea
             localStream = stream;
             videoELement!.srcObject = stream;
             videoELement!.play();
+            videoELement!.volume = 0;
             resolve(stream);
         }
         if (V) {
