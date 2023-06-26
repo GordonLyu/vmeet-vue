@@ -36,7 +36,7 @@ const form = new FormData();
 
 
 const getFile = (file: File) => {
-    form.append("File", file);
+    form.append("file", file);
 }
 
 const submit = () => {
