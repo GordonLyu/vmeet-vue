@@ -13,18 +13,55 @@
                 </div>
             </div>
             <div class="chatMessages -scrollbar" ref="chatMessagesRef" @scroll="chatMessagesScroll($event)">
-                <div :class="`msg ${item.receiverId == uid ? 'me' : 'other'}`" v-if="messages" v-for="item in messages">
-                    <div class="msg-content">
-                        <p>{{ item.content }}</p>
-                        <div class="time">{{ formatDate(new Date(item.timestamp).getTime()) }}</div>
+                <template v-for="item in messages">
+                    <div :class="`msg ${item.receiverId == uid ? 'me' : 'other'}`" v-if="messages">
+                        <div class="msg-content">
+                            <p v-if="item.type == 'text'">{{ item.content }}</p>
+                            <img v-else-if="item.type == 'image'" :src="baseURL + item.content" alt="" @load="imgLoading">
+                            <div class="file" v-else-if="item.type == 'file'">
+
+                                <div class="desc">
+                                    <p class="file-name">{{ item.originalFilename }}</p>
+                                    <p class="file-size">{{ formatFileSize(item.size!) }}</p>
+                                </div>
+                                <div class="icon" style="width: 50px; position: relative;">
+
+                                    <el-icon size="50px" class="icon-download">
+                                        <Icon :icon="'mdi:download'"></Icon>
+                                    </el-icon>
+                                    <el-icon size="50px" class="icon-file">
+                                        <Icon :icon="'mdi:file'"></Icon>
+                                    </el-icon>
+                                    <a :href="baseURL + `/file/download/${item.id}`" style="display: block; position: absolute;
+                                        top: 0;left: 0; width: 100%;height: 100%;"></a>
+                                </div>
+                            </div>
+                            <div class="time">{{ formatDate(new Date(item.timestamp).getTime()) }}</div>
+                        </div>
                     </div>
-                </div>
+                </template>
             </div>
-            <div class="tool" v-if="!noTool">
-                <div>语音</div>
-                <div>视频</div>
-            </div>
+
             <div class="input">
+                <div class="tool" v-if="!noTool">
+                    <el-tooltip :content="item.desc" placement="top" v-for="item in tools">
+                        <div @click="item.action">
+                            <Upload :class="'upload'" v-if="item.type" :hidden="false"
+                                @get-file="getFile($event, item!.type!)">
+                            </Upload>
+                            <el-icon size="25px">
+                                <Icon :icon="item.icon"></Icon>
+                            </el-icon>
+                        </div>
+                    </el-tooltip>
+                    <V3Emoji class="emoji" :recent="true" @click-emoji="appendText" :fulldata="true" v-model="text">
+                        <el-tooltip :content="'emoji'" placement="top">
+                            <el-icon size="25px">
+                                <Icon :icon="'mdi:emoticon-happy-outline'"></Icon>
+                            </el-icon>
+                        </el-tooltip>
+                    </V3Emoji>
+                </div>
                 <textarea class="-scrollbar" v-model="text" @keyup.alt.enter="send" ref="textareaRef"></textarea>
             </div>
             <div class="send-btn">
@@ -52,8 +89,24 @@ import { onMounted, ref } from 'vue';
 import Avatar from '@/components/Avatar/index.vue'
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { formatDate } from '@/utils/timeUtil';
+import { formatFileSize } from '@/utils/fileUtil'
 import api from '@/api';
 import { ElMessage } from 'element-plus/lib/components/index.js';
+import Upload from '@/components/Upload/Upload.vue';
+import V3Emoji from 'vue3-emoji'
+
+const checkMessageType = (item: any) => {
+    let type = item.type;
+    return
+}
+
+const imgLoading = () => {
+    if (currentPage.value == 1) {
+        scrollTo('bottom')
+    }
+
+}
+
 
 const props = defineProps<{
     noMore?: boolean;
@@ -64,13 +117,38 @@ const props = defineProps<{
 
 const isGroup = ref(true);
 
+// 工具栏选项
+const tools = ref([{
+    icon: 'mdi:microphone',
+    desc: '语音通话'
+}, {
+    icon: 'mdi:message-video',
+    desc: '视频通话',
+    action() {
+        let myID = JSON.parse(localStorage.getItem('user')!).id;
+        window.open(`/video-chat/${myID}?to=${uid.value}`, "_blank", "resizable=1,height=1000,width=1600");
+        window.opener = null;
+    }
+}, {
+    icon: 'mdi:image-area',
+    desc: '发送图片',
+    type: 'image',
+}, {
+    icon: 'mdi:file',
+    desc: '发送文件',
+    type: 'file',
+}])
+
 const emits = defineEmits(['openSetting'])
 const messages = ref<{
-    senderId: number,
-    receiverId: number,
-    content: string,
-    type: string,
-    timestamp: number
+    id?: number;
+    senderId: number;
+    receiverId: number;
+    content: string;
+    type: string;
+    timestamp: number;
+    originalFilename?: string;
+    size?: number;
 }[]>([])
 
 const openSetting = () => {
@@ -113,13 +191,15 @@ const send = async () => {
 
     // 实时通讯
     let myId = JSON.parse(localStorage.getItem('user')!).id;
-    api.socket.chat.send({
-        from: myId,
-        to: uid.value,
-        content: message.content,
-        type: message.type,
-        timestamp: message.timestamp
-    })
+    try {
+        api.socket.chat.send({
+            from: myId,
+            to: uid.value,
+            content: message.content,
+            type: message.type,
+            timestamp: message.timestamp
+        })
+    } catch (e) { }
 
     // 存入数据库
     api.message.sendMessage(uid.value, text.value, 'text').then((res: any) => {
@@ -148,6 +228,51 @@ const scrollTo = (position: 'top' | 'bottom') => {
     })
 }
 
+// e获取moji
+const appendText = (emoji: any) => {
+    text.value = text.value + emoji.emoji;
+    console.log(emoji);
+
+
+}
+
+// 获取文件
+const getFile = (file: File, type: "file" | "audio" | "image" | string) => {
+    api.file.sendFile(file, uid.value, type).then(async (res: any) => {
+        if (res.code == 200) {
+            let myId = JSON.parse(localStorage.getItem('user')!).id;
+            let message = {
+                senderId: myId,
+                receiverId: uid.value,
+                content: res.data,
+                type: type,
+                timestamp: new Date().getTime(),
+            }
+            await messages.value.push(message)
+            await api.socket.chat.send({
+                from: myId,
+                to: uid.value,
+                content: message.content,
+                type: message.type,
+                timestamp: message.timestamp
+            })
+            messages.value.splice(0, messages.value.length);
+            currentPage.value = 1;
+            await pageMessages(uid.value);
+            scrollTo('bottom');
+        } else {
+            ElMessage({
+                type: "error",
+                message: res.msg
+            })
+        }
+    })
+}
+
+const download = (mid: number) => {
+    api.file.downloadFile(mid);
+}
+
 const getMessage = async (_contactUser: {
     id: number;
     avatar: string;
@@ -166,6 +291,8 @@ const getMessage = async (_contactUser: {
 
 const pageMessages = async (uid: number) => {
     await api.message.pageMessages({ id: uid, current: currentPage.value, size: 10 }).then((res: any) => {
+        console.log(res.data);
+
         messages.value?.splice(0, 0, ...res.data.list);
     })
 }
@@ -187,19 +314,38 @@ const chatMessagesScroll = async (e: Event) => {
 }
 
 const sendSocketMessage = async (data: {
+    id: number,
     from: number,
     to?: number,
     content: string,
     type: string,
-    timestamp: number
+    timestamp: number,
+    originalFilename?: string,
+    size?: number
 }) => {
-    await messages.value.push({
-        senderId: data.from,
-        receiverId: data.to!,
-        content: data.content,
-        type: data.type,
-        timestamp: data.timestamp
-    });
+    console.log(data.type);
+
+    if (data.type == 'file') {
+        await setTimeout(() => {
+            api.message.pageMessages({ id: uid.value, current: 1, size: 10 }).then((res: any) => {
+                console.log(res.data);
+                messages.value?.splice(messages.value.length - 1, 0, res.data.list[9]);
+            })
+        }, 200)
+    } else {
+        await messages.value.push({
+            id: data.id,
+            senderId: data.from,
+            receiverId: data.to!,
+            content: data.content,
+            type: data.type,
+            timestamp: data.timestamp,
+            originalFilename: data.originalFilename,
+            size: data.size
+        });
+    }
+
+
     scrollTo('bottom');
 }
 
@@ -209,6 +355,24 @@ defineExpose({
 </script>
 
 <style scoped>
+.upload {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.upload :deep(.el-upload) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
 .chatMain {
     box-sizing: border-box;
     padding: 15px 30px;
@@ -289,6 +453,75 @@ defineExpose({
     word-wrap: break-word;
 }
 
+.msg .msg-content>img {
+    display: block;
+    min-width: 350px;
+    max-width: 50%;
+    width: auto;
+    border-radius: 5px;
+    box-shadow: 0 0 5px 0 #eee;
+}
+
+.msg .msg-content>.file {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-width: 250px;
+    width: 25%;
+    height: 80px;
+    box-sizing: border-box;
+    border-radius: 5px;
+    background-color: #0086ff;
+    overflow: hidden;
+}
+
+.msg .msg-content>.file .desc {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex: 1;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 10px 10px;
+    word-break: break-all;
+}
+
+.msg .msg-content>.file .icon {
+    height: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    transition: .3s;
+    cursor: pointer;
+    color: #252525;
+    overflow: hidden;
+}
+
+.msg .msg-content>.file .icon .icon-file,
+.msg .msg-content>.file .icon .icon-download {
+    /* overflow: hidden; */
+    transition: .3s;
+    transform: translateY(-50px);
+}
+
+.msg .msg-content>.file .icon:hover .icon-file {
+    height: 0;
+    transform: translateY(50px);
+
+}
+
+.msg .msg-content>.file .icon:hover .icon-download {
+    /* transform: translateY(-200%); */
+    transform: translateY(0px);
+}
+
+.msg .msg-content>.file .desc p {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+}
+
 .msg .msg-content .time {
     color: #ccc;
     font-size: 0.8em;
@@ -303,6 +536,14 @@ defineExpose({
     margin-right: auto;
 }
 
+.msg.other .msg-content>img {
+    background-color: #f1f2f6;
+}
+
+.msg.other .msg-content>.file {
+    background-color: #f1f2f6;
+}
+
 .msg.me .msg-content .time {
     margin-left: auto;
 }
@@ -312,39 +553,70 @@ defineExpose({
     margin-left: auto;
 }
 
+.msg.me .msg-content>img {
+    margin-left: auto;
+}
+
+.msg.me .msg-content>.file {
+    margin-left: auto;
+}
+
 .tool {
     display: flex;
-    gap: 10px;
+    align-items: center;
+    gap: 5px;
     width: 100%;
     height: 40px;
     box-sizing: border-box;
-    padding: 10px 10px;
+    padding: 0px 5px;
     margin: auto;
     background-color: #fff;
     border-radius: 6px;
     box-shadow: var(--default-shadow);
+    /* overflow-x: auto; */
 }
 
-.tool div {
+.tool>div {
+    width: 25px;
+    height: 25px;
+    padding: 5px 20px;
     cursor: pointer;
+    color: #0086ff;
+    transition: .3s;
+    backdrop-filter: drop-shadow(4px 4px 2px);
+    /* transform: scale(0.9)translateY(0px); */
+}
+
+.tool>div:hover {
+    color: #64b6fd;
+    /* transform: scale(1.05) translateY(-5px); */
+    /* transform: scale(0.95) translateY(-1px) translateX(-1px); */
+    border-radius: 5px;
+    /* background-color: #eee; */
+    box-shadow: 2px 2px 5px 0 #cacaca;
+
+}
+
+.emoji {
+    position: sticky;
 }
 
 .input {
     width: 100%;
-    height: 150px;
+    height: 220px;
     margin: 0 auto;
-    overflow: hidden;
+    /* overflow: hidden; */
     border-radius: 10px;
     box-shadow: var(--default-shadow);
 }
 
 .input textarea {
     width: 100%;
-    height: 100%;
+    height: 80%;
     resize: none;
     border: none;
     outline: none;
-    padding: 20px;
+    padding: 10px 20px;
     box-sizing: border-box;
     background-color: #fff;
     font-size: 1.2em;

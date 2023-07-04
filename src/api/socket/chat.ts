@@ -18,11 +18,14 @@ export const onmessage = (fn: Function) => {
 }
 
 export const send = (data: {
+    id?: number,
     from: number,
     to?: number,
     content: string,
     type: string,
-    timestamp: number
+    timestamp: number,
+    originalFilename?: string;
+    size?: number;
 }) => {
     socket.send(JSON.stringify(data));
 }

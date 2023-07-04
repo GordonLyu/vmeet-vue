@@ -6,6 +6,7 @@ import router from './router'
 import ElementPlus from 'element-plus'
 import AxiosVue from 'vue-axios'
 
+import 'vue3-emoji/dist/style.css'
 import 'element-plus/dist/index.css'
 import './assets/main.css'
 

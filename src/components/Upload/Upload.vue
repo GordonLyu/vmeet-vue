@@ -1,7 +1,7 @@
 <!-- 上传 -->
 <template>
-  <el-upload v-if="!isImg" ref="upload" :http-request="uploadFile" :limit="1" :on-exceed="handleExceed"
-    :auto-upload="true">
+  <el-upload v-if="!isImg" v-show="!props.hidden" ref="upload" :http-request="uploadFile" :limit="1"
+    :on-exceed="handleExceed" :auto-upload="true">
     <template #trigger>
       <el-button type="primary">上传</el-button>
     </template>
@@ -36,6 +36,7 @@ import type {
 const props = defineProps<{
   isImg?: boolean; //是否为图片上传模式
   isCropper?: boolean; //图片上传模式下，是否需要裁剪
+  hidden?: boolean; //是否隐藏
 }>();
 
 //判断是否为图片模式
@@ -89,6 +90,11 @@ const setFile = (file: UploadRawFile) => {
     uploadImg.value!.setFile(file);
   }
 };
+
+export interface UploadRefInstance {
+  clearFiles: Function,
+  setFile: Function
+}
 
 defineExpose({
   clearFiles,
