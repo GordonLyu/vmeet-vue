@@ -19,6 +19,7 @@
 
 <script setup lang="ts">
 import api from '@/api';
+import { useUserInfoStore } from '@/stores/user';
 import { ElMessage } from 'element-plus/lib/components/index.js';
 import { reactive, ref } from 'vue';
 
@@ -42,7 +43,7 @@ const submit = () => {
         })
         loading.value = false;
         return;
-    } else if (form.username == JSON.parse(localStorage.getItem('user')!).username) {
+    } else if (form.username == useUserInfoStore().user!.username) {
         ElMessage({
             type: 'warning',
             message: '不能添加自己'

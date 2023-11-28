@@ -26,7 +26,7 @@
                     <input type="submit" value="登录">
                 </div>
                 <div class="switch">
-                    <p><a href="/mail-login">切换邮箱登录</a></p>
+                    <p><a href="/mail-login">邮箱登录</a></p>
                     没有账号？<a href="register">注册</a>
                 </div>
             </form>
@@ -39,6 +39,8 @@ import api from '@/api';
 import type { LoginResponse } from '@/types/User';
 import { ElMessage } from 'element-plus/lib/components/index.js';
 import { reactive, ref } from 'vue';
+import { useUserInfoStore } from '@/stores/user'
+import router from '@/router';
 
 const loading = ref(false)
 
@@ -53,23 +55,18 @@ const submit = () => {
     }
     loading.value = true;
     api.user.login(formData).then((res: any) => {
-        const userData: LoginResponse = res.data;
         loading.value = false;
+        let userData: LoginResponse = res.data
         if (res.code == '200') {
             ElMessage({
                 type: 'success',
                 grouping: true,
                 message: res.msg
             })
-            let user = {
-                id: userData.id,
-                username: userData.username,
-                nickname: userData.nickname,
-                avatar: userData.avatar,
-                email: userData.email
-            }
-            localStorage.setItem('user', JSON.stringify(user));
-            localStorage.setItem('token', userData.token);
+            console.log(res.data);
+
+            useUserInfoStore().user = userData;
+            useUserInfoStore().token = userData.token;
             location.reload();
         } else {
             ElMessage({

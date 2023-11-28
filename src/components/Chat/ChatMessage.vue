@@ -29,6 +29,7 @@ import { onMounted, ref } from 'vue';
 import { formatDate } from '@/utils/timeUtil';
 import api from '@/api';
 import { useChatStore } from '@/stores/counter';
+import { useUserInfoStore } from '@/stores/user';
 
 const emit = defineEmits(['getUid'])
 
@@ -57,7 +58,7 @@ const selected = (index: number, contactUser: any) => {
 }
 
 onMounted(async () => {
-    let id = JSON.parse(localStorage.getItem('user')!).id;
+    let id = useUserInfoStore().user!.id;
     let messageList: number[] = JSON.parse(localStorage.getItem('messageList-' + id)!);
     if (messageList != null) {
         for (let i = 0, len = messageList.length; i < len; i++) {

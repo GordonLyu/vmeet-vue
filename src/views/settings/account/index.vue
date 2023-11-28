@@ -95,6 +95,8 @@ import ChangeAvatarDialog from './components/ChangeAvatarDialog.vue';
 import ChangeEmailDialog from './components/ChangeEmailDialog.vue';
 import Avatar from '@/components/Avatar/index.vue'
 import { Icon } from '@iconify/vue/dist/iconify.js';
+import { useUserInfoStore } from '@/stores/user'
+
 
 const baseURL = import.meta.env.VITE_BASE_API;
 const changePasswordDialog = ref(false);
@@ -102,12 +104,13 @@ const changeNicknameDialog = ref(false);
 const changeAvatarDialog = ref(false);
 const changeEmailDialog = ref(false);
 const isShow = ref(true);
-const nickname = ref(JSON.parse(localStorage.getItem('user')!).nickname);
-const avatar = JSON.parse(localStorage.getItem('user')!).avatar;
-const email = ref(JSON.parse(localStorage.getItem('user')!).email);
+
+const nickname = ref(useUserInfoStore().user!.nickname);
+const avatar = useUserInfoStore().user!.avatar;
+const email = ref(useUserInfoStore().user!.email);
 
 const reload = () => {
-    nickname.value = JSON.parse(localStorage.getItem('user')!).nickname;
+    nickname.value = useUserInfoStore().user!.nickname;
 }
 </script>
 

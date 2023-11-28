@@ -1,3 +1,4 @@
+import { useUserInfoStore } from "@/stores/user";
 import axios from "axios";
 import { ElMessage } from "element-plus/lib/components/index.js";
 
@@ -15,8 +16,8 @@ const request = axios.create({
 // 响应拦截器
 request.interceptors.response.use(res => {
     if(res.data.code == 401 && res.data.msg == '未提供有效的Token'){
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
+        useUserInfoStore().user = undefined;
+        useUserInfoStore().token = ''
         location.reload();
     }
     return res.data;
@@ -30,7 +31,7 @@ request.interceptors.response.use(res => {
 
 // 请求拦截器
 request.interceptors.request.use(config => {
-    config.headers['token'] = localStorage.getItem('token');
+    config.headers['token'] = useUserInfoStore().token;
     return config;
 }, error => {
     ElMessage({

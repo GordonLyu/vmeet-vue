@@ -22,9 +22,9 @@ import api from '@/api';
 import { ElMessage } from 'element-plus/lib/components/index.js';
 import { reactive, ref } from 'vue';
 import Upload from '@/components/Upload';
-import router from '@/router';
+import { useUserInfoStore } from '@/stores/user';
 
-let user = JSON.parse(localStorage.getItem('user')!);
+let user = useUserInfoStore().user;
 const props = defineProps<{
     open?: boolean;
 }>()
@@ -36,6 +36,8 @@ const form = new FormData();
 
 
 const getFile = (file: File) => {
+    console.log(file);
+    
     form.append("file", file);
 }
 
@@ -44,13 +46,12 @@ const submit = () => {
 
     api.file.uploadAvatar(form).then((res: any) => {
         console.log(res);
-
         if (res.code == 200) {
             ElMessage({
                 type: 'success',
                 message: '已修改头像'
             })
-            localStorage.setItem('user', JSON.stringify(user))
+            useUserInfoStore().user = user;
             emits('close');
             location.reload();
         } else {

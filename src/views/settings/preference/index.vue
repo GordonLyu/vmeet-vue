@@ -22,13 +22,14 @@
 </template>
 
 <script setup lang="ts">
+import { useUserInfoStore } from '@/stores/user';
 import { ref } from 'vue';
 
 const isShow = ref(true);
-const nickname = ref(JSON.parse(localStorage.getItem('user')!).nickname);
+const nickname = ref(useUserInfoStore().user!.nickname);
 
 const reload = () => {
-    nickname.value = JSON.parse(localStorage.getItem('user')!).nickname;
+    nickname.value = useUserInfoStore().user!.nickname;
 }
 </script>
 

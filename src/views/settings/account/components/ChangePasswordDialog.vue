@@ -25,6 +25,7 @@
 
 <script setup lang="ts">
 import api from '@/api';
+import { useUserInfoStore } from '@/stores/user';
 import { ElMessage } from 'element-plus/lib/components/index.js';
 import { reactive, ref } from 'vue';
 
@@ -45,7 +46,7 @@ const form = reactive({
 
 const submit = () => {
     loading.value = true;
-    let user = JSON.parse(localStorage.getItem('user')!);
+    let user = useUserInfoStore().user!;
     form.id = user.id;
     if (form.newPassword != rePassword.value) {
         ElMessage({

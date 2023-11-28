@@ -4,6 +4,7 @@ import settingsRouter from './settings'
 import api from '@/api'
 import { ElMessage } from 'element-plus/lib/components/index.js'
 import type { LoginResponse } from '@/types/User'
+import { useUserInfoStore } from '@/stores/user'
 
 
 // 群体导入~
@@ -71,30 +72,26 @@ const router = createRouter({
   routes: routes
 })
 
-const whitelist = ['/login', '/mail-login', '/register', '/test/chat', '/test/chatBox', '/test/videoChat', "/test/audio"]
+const whitelist = ['/login', '/mail-login', '/register', '/test/chat', '/test/chatBox', '/test/videoChat', "/test/audio","/test"]
+
+
 
 router.beforeEach((to, from, next) => {
-  if (localStorage.getItem('token') && to.path == '/login' || localStorage.getItem('token') && to.path == '/register') {
+  let token = useUserInfoStore().token;
+  if (token && to.path == '/login' || token && to.path == '/register') {
     next({
       path: 'chat',
       replace: true
     });
   } else if (whitelist.includes(to.path)) {
     next();
-  } else if (localStorage.getItem('token')) {
+  } else if (token) {
     api.user.isLogin().then((res: any) => {
       if (res.code == 200) {
-        let userData: LoginResponse = res.data;
-        localStorage.setItem('user', JSON.stringify({
-          id: userData.id,
-          username: userData.username,
-          nickname: userData.nickname,
-          avatar: userData.avatar,
-          email: userData.email
-        }));
+        useUserInfoStore().user = res.data;
         next();
       } else {
-        localStorage.removeItem('token');
+        useUserInfoStore().token = ''
         next('/login');
       }
     }).catch(error => {
@@ -104,7 +101,7 @@ router.beforeEach((to, from, next) => {
         type: 'error',
         message: '未连接服务器'
       })
-      localStorage.removeItem('token');
+      useUserInfoStore().token = ''
       next('/login');
     })
   } else {

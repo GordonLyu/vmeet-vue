@@ -17,6 +17,7 @@
 
 <script setup lang="ts">
 import Avatar, { type DropdownConfig } from '@/components/Avatar/index.vue'
+import { useUserInfoStore } from '@/stores/user';
 
 const dropdownConfig: DropdownConfig[] = [{
     name: "个人中心",
@@ -25,9 +26,9 @@ const dropdownConfig: DropdownConfig[] = [{
     name: '清理缓存',
     click: (e: Event) => {
         console.log(e);
-        let t = localStorage.getItem('token');
+        let t = useUserInfoStore().token;
         localStorage.clear();
-        localStorage.setItem('token', t!);
+        useUserInfoStore().token = t!;
         location.reload();
     }
 }, {
@@ -35,7 +36,7 @@ const dropdownConfig: DropdownConfig[] = [{
     divided: true,
     click: () => {
         console.log("退出登录");
-        localStorage.removeItem('token');
+        useUserInfoStore().token = ''
         location.reload();
     }
 }]

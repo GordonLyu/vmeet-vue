@@ -18,16 +18,17 @@
 import api from '@/api';
 import Header from '@/components/Header/index.vue';
 import Menu from '@/components/Menu/index.vue';
+import { useUserInfoStore } from '@/stores/user';
 import { onMounted, onUnmounted, ref } from 'vue';
 import { RouterView } from 'vue-router';
 
 const title = ref('聊天')
-const user = JSON.parse(localStorage.getItem('user')!);
+const user = useUserInfoStore().user!;
 
 const getMenuItemData = (item: any) => {
   title.value = item.title;
 }
-let uid = JSON.parse(localStorage.getItem('user')!).id;
+let uid = useUserInfoStore().user!.id;
   api.socket.chat.connect(uid);
 
 // onUnmounted(() => {

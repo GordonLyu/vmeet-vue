@@ -47,7 +47,7 @@
                     <el-tooltip :content="item.desc" placement="top" v-for="item in tools">
                         <div @click="item.action">
                             <Upload :class="'upload'" v-if="item.type" :hidden="false"
-                                @get-file="getFile($event, item!.type!)">
+                                @get-file="getFile($event, item!.type!)" :ref="setUploadRefs">
                             </Upload>
                             <el-icon size="25px">
                                 <Icon :icon="item.icon"></Icon>
@@ -85,15 +85,23 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, type VNodeRef } from 'vue';
 import Avatar from '@/components/Avatar/index.vue'
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { formatDate } from '@/utils/timeUtil';
 import { formatFileSize } from '@/utils/fileUtil'
 import api from '@/api';
 import { ElMessage } from 'element-plus/lib/components/index.js';
-import Upload from '@/components/Upload/Upload.vue';
+import Upload, { type UploadRefInstance } from '@/components/Upload/Upload.vue';
 import V3Emoji from 'vue3-emoji'
+import { useUserInfoStore } from '@/stores/user';
+
+const uploadRefs = ref<UploadRefInstance[]>([]);
+
+const setUploadRefs = (el: UploadRefInstance) => {
+    uploadRefs.value.push(el)
+    return undefined
+}
 
 const checkMessageType = (item: any) => {
     let type = item.type;
@@ -106,6 +114,7 @@ const imgLoading = () => {
     }
 
 }
+
 
 
 const props = defineProps<{
@@ -125,7 +134,7 @@ const tools = ref([{
     icon: 'mdi:message-video',
     desc: '视频通话',
     action() {
-        let myID = JSON.parse(localStorage.getItem('user')!).id;
+        let myID = useUserInfoStore().user!.id;
         window.open(`/video-chat/${myID}?to=${uid.value}`, "_blank", "resizable=1,height=1000,width=1600");
         window.opener = null;
     }
@@ -190,7 +199,7 @@ const send = async () => {
     };
 
     // 实时通讯
-    let myId = JSON.parse(localStorage.getItem('user')!).id;
+    let myId = useUserInfoStore().user!.id;
     try {
         api.socket.chat.send({
             from: myId,
@@ -240,7 +249,7 @@ const appendText = (emoji: any) => {
 const getFile = (file: File, type: "file" | "audio" | "image" | string) => {
     api.file.sendFile(file, uid.value, type).then(async (res: any) => {
         if (res.code == 200) {
-            let myId = JSON.parse(localStorage.getItem('user')!).id;
+            let myId = useUserInfoStore().user!.id;
             let message = {
                 senderId: myId,
                 receiverId: uid.value,
@@ -266,6 +275,11 @@ const getFile = (file: File, type: "file" | "audio" | "image" | string) => {
                 message: res.msg
             })
         }
+
+        uploadRefs.value.forEach((el) => {
+            el.clearFiles();
+        })
+
     })
 }
 

@@ -32,7 +32,7 @@
                     <input type="submit" value="登录">
                 </div>
                 <div class="switch">
-                    <p><a href="/login">切换邮箱密码登录</a></p>
+                    <p><a href="/login">用户名登录</a></p>
                     没有账号？<a href="register">注册</a>
                 </div>
             </form>
@@ -43,6 +43,7 @@
 <script setup lang="ts">
 import api from '@/api';
 import router from '@/router';
+import { useUserInfoStore } from '@/stores/user';
 import type { LoginResponse } from '@/types/User';
 import { ElMessage } from 'element-plus/lib/components/index.js';
 import { reactive, ref } from 'vue';
@@ -100,7 +101,6 @@ const submit = () => {
     }
     loading.value = true;
     api.user.loginEmailVerifyCode(formData.email, formData.code).then((res: any) => {
-        const userData: LoginResponse = res.data;
         loading.value = false;
         if (res.code == '200') {
             ElMessage({
@@ -108,16 +108,9 @@ const submit = () => {
                 grouping: true,
                 message: res.msg
             })
-            let user = {
-                id: userData.id,
-                username: userData.username,
-                nickname: userData.nickname,
-                avatar: userData.avatar,
-                email: userData.email
-            }
-            localStorage.setItem('user', JSON.stringify(user));
-            localStorage.setItem('token', userData.token);
-            router.push('/login')
+            useUserInfoStore().user = res.data
+            useUserInfoStore().token = res.data.token
+            location.reload();
         } else {
             ElMessage({
                 type: 'error',

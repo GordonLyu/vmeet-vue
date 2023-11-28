@@ -19,10 +19,11 @@
 
 <script setup lang="ts">
 import api from '@/api';
+import { useUserInfoStore } from '@/stores/user';
 import { ElMessage } from 'element-plus/lib/components/index.js';
 import { reactive, ref } from 'vue';
 
-let user = JSON.parse(localStorage.getItem('user')!);
+let user = useUserInfoStore().user!;
 const props = defineProps<{
     open?: boolean;
 }>()
@@ -53,7 +54,7 @@ const submit = () => {
                 message: '昵称修改成功'
             })
             user.nickname = form.newNickname;
-            localStorage.setItem('user', JSON.stringify(user))
+            useUserInfoStore().user = user;
             emits('close');
             // location.reload();
         } else {

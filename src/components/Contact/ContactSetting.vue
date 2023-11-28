@@ -32,6 +32,7 @@ import router from '@/router';
 import type { Contact } from '@/types/Contact';
 import { ElMessage, ElMessageBox } from 'element-plus/lib/components/index.js';
 import { useChatStore } from '@/stores/counter'
+import { useUserInfoStore } from '@/stores/user';
 
 const baseURL = import.meta.env.VITE_BASE_API;
 
@@ -42,7 +43,7 @@ const props = defineProps<{
 const to = (uid: number, url: string) => {
     // 使联系人出现在消息列表中,且在第一位
     let messageList: number[] = [];
-    let id = JSON.parse(localStorage.getItem('user')!).id;
+    let id = useUserInfoStore().user!.id;
     if (localStorage.getItem('messageList-' + id)) {
         messageList = JSON.parse(localStorage.getItem('messageList-' + id)!);
         for (let i = 0, len = messageList.length; i < len; i++) {
@@ -61,7 +62,7 @@ const to = (uid: number, url: string) => {
 }
 
 const toVideo = (id: number) => {
-    let myID = JSON.parse(localStorage.getItem('user')!).id;
+    let myID = useUserInfoStore().user!.id;
     window.open(`/video-chat/${myID}?to=${id}`, "_blank", "resizable=1,height=1000,width=1600");
     window.opener = null;
 
