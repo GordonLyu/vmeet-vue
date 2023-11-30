@@ -1,9 +1,9 @@
 <template>
     <div style="background-color: #f8f8f8; height: 100%;">
         <div class="main">
-            <NewUpload ref="newUploadRef" @get-file="getFile" :tip="'1111'" hidden></NewUpload>
-
-            <div class="upload" @click="selectFile">上传</div>
+            <div class="upload">
+                <NewUpload ref="newUploadRef" class="new-upload" @get-file="getFile" is-img></NewUpload>
+            </div>
         </div>
     </div>
 </template>
@@ -17,15 +17,13 @@ const newUploadRef = ref<UploadRefInstance>()
 const getFile = (file: File) => {
     console.log(file);
 }
-
-const selectFile = () => {
-    newUploadRef.value?.selectFile();
-}
 </script>
 
 <style scoped>
 .main {
     position: relative;
+    display: grid;
+    place-items: center;
     margin: auto;
     top: 100px;
     width: 400px;
@@ -37,9 +35,13 @@ const selectFile = () => {
 }
 
 .upload {
-    display: inline-block;
-    padding: 10px 20px;
+    width: 200px;
+    height: 200px;
     background-color: rgb(107, 120, 235);
-    cursor: pointer;
+    transition: 0.3s;
 }
+
+/* .upload:hover {
+    transform: translateY(-5px) scale(1.05);
+} */
 </style>

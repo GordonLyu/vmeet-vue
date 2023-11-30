@@ -1,56 +1,64 @@
 <template>
-  <div v-if="!props.hidden">
-    <el-upload ref="uploadRef" :limit="1" :on-exceed="handleExceed" :auto-upload="false" :on-change="changeFile">
-      <template #trigger>
-        <el-button type="primary">选择文件</el-button>
-      </template>
-      <template #tip v-if="props.tip">
-        <div class="el-upload__tip text-red">{{ props.tip }}</div>
-      </template>
-    </el-upload>
-    <!-- <UploadImg v-if="props.isImg" @get-file="getFile" ref="uploadImgRef" :is-cropper="props.isCropper" /> -->
-  </div>
+  <el-upload v-if="!props.isImg" ref="uploadRef" :limit="1" :on-exceed="handleExceed" :auto-upload="false"
+    :on-change="changeFile" :show-file-list="props.fillParent ? false : !props.hiddenList"
+    :class="`${props.fillParent ? 'fill action' : ''} ${props.text ? '' : 'amend'}`"
+    :style="`display: inline-block; opacity: ${props.transparent ? '0' : '1'}`">
+    <template #trigger>
+      <el-button type="primary" :class="props.fillParent ? 'fill action' : ''" v-if="!isExistDefaultSlot">
+        {{ props.fillParent ? props.text : props.text ? props.text : '选择文件' }}
+      </el-button>
+      <slot else></slot>
+    </template>
+    <template #tip v-if="props.fillParent ? false : props.tip">
+      <div class="el-upload__tip text-red">{{ props.tip }}</div>
+    </template>
+  </el-upload>
+  <UploadImg v-else @get-file="getFile" ref="uploadImgRef" :is-cropper="props.isCropper" />
 </template>
 
 <script setup lang="ts">
 /*
-属性:
-  isImg:boolean - 是否为图片上传模式
-  isCropper:boolean - 图片上传模式下，是否需要裁剪
-  tip:string - 提示
+属性：
+  isImg?:boolean - 是否为图片上传模式
+  isCropper?:boolean - 图片上传模式下，是否需要裁剪
+  tip?:string - 提示
+  hiddenList?:boolean - 是否隐藏已上传文件列表
+  fillParent?:boolean - 元素大小填充父元素，且隐藏上传文件列表和提示
+  text?:string - 按钮文字
+  transparent?:boolean - 是否透明
 
 事件：
   @get-file->File - 获取将要上传的文件
 
 方法：
   clearFiles()->void - 清理将要上传的文件列表
-  file(UploadRawFile)->void - 手动上传文件
+  setFile(UploadRawFile)->void - 手动上传文件
+
+插槽：
+  default：若无插槽，则显示默认按钮
 */
 
 import { genFileId, type UploadFile, type UploadInstance, type UploadProps, type UploadRawFile } from 'element-plus/lib/components/index.js';
-// import UploadImg from './components/UploadImg.vue';
-import { ref, watch } from 'vue';
+import UploadImg from './components/UploadImg.vue';
+import type { PropsInterface } from './index.d.ts'
+import { ref, useSlots, watch } from 'vue';
 
 const uploadRef = ref<UploadInstance>()
+
+const isExistDefaultSlot = ref(!!useSlots().default);
 const file = ref<UploadRawFile>()
 
-const props = withDefaults(defineProps<{
-  /** 是否为图片上传模式 */
-  isImg?: boolean;
-  /** 图片上传模式下，是否需要裁剪 */
-  isCropper?: boolean;
-  /** 提示 */
-  tip?: string;
-  hidden?: boolean;
-}>(), {
+const props = withDefaults(defineProps<PropsInterface>(), {
   isImg: false,
   isCropper: false,
-  hidden: false
+  hiddenList: false,
+  fillParent: false,
+  transparent: false
 })
 
 const emits = defineEmits(['getFile'])
 
-watch(file, (NV, OV) => {
+watch(file, (NV) => {
   if (NV) {
     swapFile(NV);
     getFile();
@@ -76,7 +84,7 @@ const swapFile = (_file: UploadRawFile) => {
 
 }
 
-/** 文件数量溢出处理 */
+/** 文件溢出处理 */
 const handleExceed: UploadProps['onExceed'] = (files: UploadRawFile[]) => {
   file.value = files[0];
 }
@@ -91,13 +99,8 @@ const setFile = (_file: UploadRawFile): void => {
   file.value = _file;
 }
 
-/** 手动选择上传文件 */
-const selectFile = () => {
-  
-}
-
 defineExpose({
-  clearFiles, setFile, selectFile
+  clearFiles, setFile
 })
 
 export interface UploadRefInstance {
@@ -105,9 +108,26 @@ export interface UploadRefInstance {
   clearFiles(): void;
   /** 手动上传文件 */
   setFile(_file: UploadRawFile): void;
-  /** 手动选择上传文件 */
-  selectFile(): void;
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.fill.action {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.fill.action :deep(.el-upload.el-upload--text) {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/** 修正 */
+.amend :deep(.el-upload.el-upload--text) {
+  top: -0.1em;
+}
+</style>
