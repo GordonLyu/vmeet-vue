@@ -2,7 +2,7 @@
     <div style="background-color: #f8f8f8; height: 100%;">
         <div class="main">
             <div class="upload">
-                <NewUpload ref="newUploadRef" class="new-upload" @get-file="getFile" is-img></NewUpload>
+                <NewUpload ref="newUploadRef" @get-file="getFile" is-img fill-parent is-cropper></NewUpload>
             </div>
         </div>
     </div>
