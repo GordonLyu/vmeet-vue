@@ -72,13 +72,13 @@ const router = createRouter({
   routes: routes
 })
 
-const whitelist = ['/login', '/mail-login', '/register', '/test/chat', '/test/chatBox', '/test/videoChat', "/test/audio","/test"]
+const whitelist = ['/login', '/mail-login', '/register', '/test/chat', '/test/chatBox', '/test/videoChat', "/test/audio", "/test"]
 
 
 
 router.beforeEach((to, from, next) => {
   let token = useUserInfoStore().token;
-  if (token && to.path == '/login' || token && to.path == '/register') {
+  if (token && (to.path == '/login' || to.path == '/register' || to.path == '/mail-login')) {
     next({
       path: 'chat',
       replace: true
