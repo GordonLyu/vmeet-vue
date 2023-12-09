@@ -25,8 +25,8 @@
               <Icon icon="ep:zoom-in" />
             </el-icon>
           </span>
-          <span class="el-upload-list__item-delete"
-            @click="uploadRef?.clearFiles(); imageURL = ''; isCropperView = false">
+          <span class="el-upload-list__item-delete" @click="uploadRef?.clearFiles(); imageURL = ''; isCropperView = false;
+          isCroppedImage = false;">
             <el-icon>
               <Icon icon="ep:delete" />
             </el-icon>
@@ -42,7 +42,8 @@
   </el-dialog>
 
 
-  <CropperDialog :show="props.isCropper && isCropperView" :img="file!"></CropperDialog>
+  <CropperDialog :show="props.isCropper && isCropperView" :img="file!" @cropped-file="setFile" ref="CropperDialogRef">
+  </CropperDialog>
 </template>
 
 <script setup lang="ts">
@@ -71,15 +72,17 @@ import { genFileId, type UploadFile, type UploadInstance, type UploadProps, type
 import type { PropsInterface } from './index.d.ts'
 import { ref, useSlots, watch } from 'vue';
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import CropperDialog from './components/CropperDialog.vue'
+import CropperDialog, { type CropperDialogInterface } from './components/CropperDialog.vue'
 
 const uploadRef = ref<UploadInstance>()
+const CropperDialogRef = ref<CropperDialogInterface>()
 const imageURL = ref('')
 
 const isExistDefaultSlot = ref(!!useSlots().default);
 const file = ref<UploadRawFile>()
 const isZoom = ref(false)
 const isCropperView = ref(false)
+const isCroppedImage = ref(false)
 
 const props = withDefaults(defineProps<PropsInterface>(), {
   isImg: false,
@@ -96,8 +99,8 @@ watch(file, (NV) => {
     swapFile(NV);
     getFile();
     if (props.isImg) {
-      isCropperView.value = true;
-      imageURL.value = URL.createObjectURL(NV)
+      isCropperView.value = !isCroppedImage.value;
+      imageURL.value = URL.createObjectURL(NV);
     }
   }
 })
@@ -132,6 +135,7 @@ const clearFiles = (): void => {
 /** 手动上传文件 */
 const setFile = (_file: UploadRawFile): void => {
   file.value = _file;
+  isCroppedImage.value = true;
 }
 
 defineExpose({

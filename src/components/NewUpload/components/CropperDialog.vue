@@ -1,8 +1,8 @@
 <template>
-    <el-dialog v-model="action" title="裁剪" width="600px" :show-close="false" class="dialog">
+    <el-dialog v-model="action" title="裁剪" width="600px" :show-close="false" class="dialog" destroy-on-close @close="enter">
         <div class="box">
             <div class="crop-box">
-                <PictureCropper ref="cropperRef" />
+                <PictureCropper ref="cropperRef" :image-file="rawImage!" @cropped-file="getCroppedFile" />
                 <div class="view">
                     <img :src="croppedImageURL" alt="" width="200" height="200" />
                     <h1>预览图片</h1>
@@ -11,8 +11,7 @@
         </div>
         <template #footer>
             <span class="dialog-footer">
-                <el-button @click="action = false">取消</el-button>
-                <el-button type="primary">确定</el-button>
+                <el-button type="primary" @click="enter">确定</el-button>
             </span>
         </template>
     </el-dialog>
@@ -29,13 +28,39 @@ const props = defineProps<{
     img: UploadRawFile | undefined;
 }>();
 
-const action = ref(false)
-const croppedImageURL = ref('')
+const emits = defineEmits(['croppedFile'])
 
-watch(props, () => {
-    action.value = props.show;
-    croppedImageURL.value = URL.createObjectURL(props.img!);
+const action = ref(false)
+const croppedImage = ref<File>()
+const croppedImageURL = ref<string>()
+const rawImage = ref<File>()
+
+watch(props, (NV) => {
+    action.value = NV.show;
+    rawImage.value = NV.img;
 })
+
+/** 获取裁剪后图片文件 */
+const getCroppedFile = (file: Promise<File>) => {
+    file.then((res) => {
+        croppedImage.value = res;
+        croppedImageURL.value = URL.createObjectURL(res);
+    })
+}
+
+const enter = () => {
+    emits('croppedFile', croppedImage.value)
+}
+
+const getCroppedImage = () => {
+    return croppedImage.value;
+}
+
+export interface CropperDialogInterface {
+    getCroppedImage(): File;
+}
+
+defineExpose({ getCroppedImage })
 
 </script>
 
