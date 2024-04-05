@@ -17,7 +17,8 @@
                     <div :class="`msg ${item.receiverId == uid ? 'me' : 'other'}`" v-if="messages">
                         <div class="msg-content">
                             <p v-if="item.type == 'text'">{{ item.content }}</p>
-                            <img v-else-if="item.type == 'image'" :src="baseURL + item.content" alt="" @load="imgLoading">
+                            <img v-else-if="item.type == 'image'" :src="baseURL + item.content" alt=""
+                                @load="imgLoading">
                             <div class="file" v-else-if="item.type == 'file'">
 
                                 <div class="desc">
@@ -91,10 +92,11 @@ import { Icon } from '@iconify/vue/dist/iconify.js';
 import { formatDate } from '@/utils/timeUtil';
 import { formatFileSize } from '@/utils/fileUtil'
 import api from '@/api';
-import { ElMessage } from 'element-plus/lib/components/index.js';
+import { ElMessage } from 'element-plus';
 import Upload, { type UploadRefInstance } from '@/components/Upload/Upload.vue';
 import V3Emoji from 'vue3-emoji'
 import { useUserInfoStore } from '@/stores/user';
+import { useLiveStore } from '@/stores/live';
 
 const uploadRefs = ref<UploadRefInstance[]>([]);
 
@@ -135,8 +137,7 @@ const tools = ref([{
     desc: '视频通话',
     action() {
         let myID = useUserInfoStore().user!.id;
-        window.open(`/video-chat/${myID}?to=${uid.value}`, "_blank", "resizable=1,height=1000,width=1600");
-        window.opener = null;
+        useLiveStore().openVideoChatPage(myID, uid.value, contactUser.value.nickname);
     }
 }, {
     icon: 'mdi:image-area',

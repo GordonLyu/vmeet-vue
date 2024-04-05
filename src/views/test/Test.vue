@@ -1,6 +1,7 @@
 <template>
     <div style="background-color: #f8f8f8; height: 100%;">
         <div class="main">
+            <button @click="openVn1">openVn</button>
             <div class="upload">
                 <NewUpload ref="newUploadRef" @get-file="getFile" is-img fill-parent is-cropper></NewUpload>
             </div>
@@ -10,12 +11,18 @@
 
 <script setup lang="ts">
 import NewUpload, { type UploadRefInstance } from '@/components/NewUpload/index.vue'
+import { liveMessage } from '@/utils/messageUtil';
 import { ref } from 'vue';
+
 
 const newUploadRef = ref<UploadRefInstance>()
 
 const getFile = (file: File) => {
     console.log(file);
+}
+
+const openVn1 = () => {
+    liveMessage(1, '测试', '视频')
 }
 </script>
 

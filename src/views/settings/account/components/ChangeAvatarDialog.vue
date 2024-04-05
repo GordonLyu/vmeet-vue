@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
 import api from '@/api';
-import { ElMessage } from 'element-plus/lib/components/index.js';
+import { ElMessage } from 'element-plus';
 import { reactive, ref } from 'vue';
 import Upload from '@/components/Upload';
 import { useUserInfoStore } from '@/stores/user';
@@ -37,7 +37,7 @@ const form = new FormData();
 
 const getFile = (file: File) => {
     console.log(file);
-    
+
     form.append("file", file);
 }
 

@@ -1,6 +1,6 @@
 import { useUserInfoStore } from "@/stores/user";
 import axios from "axios";
-import { ElMessage } from "element-plus/lib/components/index.js";
+import { ElMessage } from "element-plus";
 
 const baseURL = import.meta.env.VITE_BASE_API;
 
@@ -15,7 +15,7 @@ const request = axios.create({
 
 // 响应拦截器
 request.interceptors.response.use(res => {
-    if(res.data.code == 401 && res.data.msg == '未提供有效的Token'){
+    if (res.data.code == 401 && res.data.msg == '未提供有效的Token') {
         useUserInfoStore().user = undefined;
         useUserInfoStore().token = ''
         location.reload();

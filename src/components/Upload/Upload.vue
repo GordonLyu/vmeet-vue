@@ -24,14 +24,14 @@
 */
 
 import { ref } from "vue";
-import { genFileId } from "element-plus/lib/components/index.js";
+import { genFileId } from "element-plus";
 import UploadImg from "./UploadImg.vue";
 import type {
   UploadInstance,
   UploadProps,
   UploadRawFile,
   UploadRequestOptions,
-} from "element-plus/lib/components/index.js";
+} from "element-plus";
 
 const props = defineProps<{
   isImg?: boolean; //是否为图片上传模式

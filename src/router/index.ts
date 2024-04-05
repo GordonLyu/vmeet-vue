@@ -2,7 +2,7 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import adminRouter from './admin'
 import settingsRouter from './settings'
 import api from '@/api'
-import { ElMessage } from 'element-plus/lib/components/index.js'
+import { ElMessage } from 'element-plus'
 import type { LoginResponse } from '@/types/User'
 import { useUserInfoStore } from '@/stores/user'
 

@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import api from '@/api';
 import { useUserInfoStore } from '@/stores/user';
-import { ElMessage } from 'element-plus/lib/components/index.js';
+import { ElMessage } from 'element-plus';
 import { reactive, ref } from 'vue';
 
 const props = defineProps<{

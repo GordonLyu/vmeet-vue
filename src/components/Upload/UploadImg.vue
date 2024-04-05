@@ -65,13 +65,13 @@
 
 import PictureCropper from "./PictureCropper.vue";
 import { ref } from "vue";
-import { genFileId } from "element-plus/lib/components/index.js";
+import { genFileId } from "element-plus";
 import type {
   UploadFile,
   UploadInstance,
   UploadRequestOptions,
   UploadRawFile,
-} from "element-plus/lib/components/index.js";
+} from "element-plus";
 import { Icon } from "@iconify/vue/dist/iconify.js";
 
 const props = defineProps<{

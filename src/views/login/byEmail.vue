@@ -45,7 +45,7 @@ import api from '@/api';
 import router from '@/router';
 import { useUserInfoStore } from '@/stores/user';
 import type { LoginResponse } from '@/types/User';
-import { ElMessage } from 'element-plus/lib/components/index.js';
+import { ElMessage } from 'element-plus';
 import { reactive, ref } from 'vue';
 
 const loading = ref(false);

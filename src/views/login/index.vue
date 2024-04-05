@@ -37,7 +37,7 @@
 <script setup lang="ts">
 import api from '@/api';
 import type { LoginResponse } from '@/types/User';
-import { ElMessage } from 'element-plus/lib/components/index.js';
+import { ElMessage } from 'element-plus';
 import { reactive, ref } from 'vue';
 import { useUserInfoStore } from '@/stores/user'
 import router from '@/router';

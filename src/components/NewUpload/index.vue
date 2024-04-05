@@ -26,7 +26,7 @@
             </el-icon>
           </span>
           <span class="el-upload-list__item-delete" @click="uploadRef?.clearFiles(); imageURL = ''; isCropperView = false;
-          isCroppedImage = false;">
+  isCroppedImage = false;">
             <el-icon>
               <Icon icon="ep:delete" />
             </el-icon>
@@ -68,7 +68,7 @@
   default：若无插槽，则显示默认按钮
 */
 
-import { genFileId, type UploadFile, type UploadInstance, type UploadProps, type UploadRawFile } from 'element-plus/lib/components/index.js';
+import { genFileId, type UploadFile, type UploadInstance, type UploadProps, type UploadRawFile } from 'element-plus';
 import type { PropsInterface } from './index.d.ts'
 import { ref, useSlots, watch } from 'vue';
 import { Icon } from '@iconify/vue/dist/iconify.js';

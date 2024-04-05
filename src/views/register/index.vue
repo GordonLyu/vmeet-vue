@@ -47,7 +47,7 @@
 import api from '@/api';
 import router from '@/router';
 import type { Register } from '@/types/User';
-import { ElMessage } from 'element-plus/lib/components/index.js';
+import { ElMessage } from 'element-plus';
 import { ref, reactive } from 'vue';
 
 const repassword = ref('')

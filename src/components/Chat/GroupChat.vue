@@ -40,7 +40,7 @@ import Avatar from '@/components/Avatar/index.vue'
 import { Icon } from '@iconify/vue/dist/iconify.js';
 import { formatDate } from '@/utils/timeUtil';
 import api from '@/api';
-import { ElMessage } from 'element-plus/lib/components/index.js';
+import { ElMessage } from 'element-plus';
 import { useUserInfoStore } from '@/stores/user';
 
 const props = defineProps<{
@@ -95,7 +95,7 @@ const send = async () => {
         type: 'text',
         timestamp: new Date().getTime()
     };
-    
+
     // 实时通讯
     let myId = useUserInfoStore().user!.id;
     api.socket.chat.send({

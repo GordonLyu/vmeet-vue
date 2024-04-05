@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
 import { Icon } from '@iconify/vue/dist/iconify.js';
-import { ElMessage, ElMessageBox } from 'element-plus/lib/components/index.js';
+import { ElMessage, ElMessageBox } from 'element-plus';
 
 const emits = defineEmits(['close']);
 

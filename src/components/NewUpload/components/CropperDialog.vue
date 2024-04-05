@@ -1,5 +1,6 @@
 <template>
-    <el-dialog v-model="action" title="裁剪" width="600px" :show-close="false" class="dialog" destroy-on-close @close="enter">
+    <el-dialog v-model="action" title="裁剪" width="600px" :show-close="false" class="dialog" destroy-on-close
+        @close="enter">
         <div class="box">
             <div class="crop-box">
                 <PictureCropper ref="cropperRef" :image-file="rawImage!" @cropped-file="getCroppedFile" />
@@ -18,7 +19,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { UploadRawFile } from 'element-plus/lib/components/index.js';
+import type { UploadRawFile } from 'element-plus';
 import { ref, watch } from 'vue';
 import PictureCropper from './PictureCropper.vue'
 const props = defineProps<{
