@@ -3,7 +3,8 @@
         <div class="contain" v-if="contactUser">
             <div class="title">
                 <div class="chat-user">
-                    <Avatar :src="baseURL + contactUser.avatar" :username="contactUser.nickname" :has-dropdown="false">
+                    <Avatar :src="baseURL + contactUser.avatar" no-cache :username="contactUser.nickname"
+                        :has-dropdown="false">
                     </Avatar>
                 </div>
                 <div class="option" v-if="!props.noMore">
@@ -65,8 +66,11 @@
                 </div>
                 <textarea class="-scrollbar" v-model="text" @keyup.alt.enter="send" ref="textareaRef"></textarea>
             </div>
+
+
             <div class="send-btn">
                 <!-- <el-button @click="send">发送</el-button> -->
+                <!-- <span style="padding: 0 20px;color: #aaa;">{{ text.length }}/300</span> -->
                 <button @click="send">
                     <div class="svg-wrapper-1">
                         <div class="svg-wrapper">
@@ -185,6 +189,13 @@ interface ChatSocket {
 }
 
 const send = async () => {
+    // if (text.value.length > 300) {
+    //     ElMessage({
+    //         type: 'error',
+    //         message: '内容不能超过300字符！'
+    //     })
+    //     return;
+    // }
     text.value = text.value.trim();
     console.log(text.value.split('\n'));
     if (text.value == '') {
@@ -213,7 +224,17 @@ const send = async () => {
 
     // 存入数据库
     api.message.sendMessage(uid.value, text.value, 'text').then((res: any) => {
-        if (res.code != 200) {
+        if (res.code == 500) {
+            ElMessage({
+                type: 'error',
+                message: '发送失败，服务器发生一些问题'
+            })
+        } else if (res.code == 400) {
+            ElMessage({
+                type: 'error',
+                message: res.msg
+            })
+        } else if (res.code != 200) {
             ElMessage({
                 type: 'error',
                 message: '发送失败，服务器可能发生一些问题'
@@ -393,6 +414,8 @@ defineExpose({
     padding: 15px 30px;
     width: 100%;
     height: 100%;
+    word-break: break-all;
+    word-wrap: break-word;
     /* background-color: var(--light-gray); */
 }
 
@@ -639,6 +662,8 @@ defineExpose({
 }
 
 .send-btn {
+    display: flex;
+    align-items: center;
     margin-left: auto;
 }
 
