@@ -19,7 +19,7 @@
             <div v-for="item, index in contacts" @click="selected(item)">
                 <div :key="item.id" :class="`item ${actionIndex == item.id ? 'action' : ''}`">
                     <div class="avatar">
-                        <el-avatar :src="baseURL + item.avatar"></el-avatar>
+                        <el-avatar :src="baseURL + item.avatar + `?r=${Math.random()}`"></el-avatar>
                     </div>
                     <div class="content">
                         <div class="name">{{ item.nickname }}</div>

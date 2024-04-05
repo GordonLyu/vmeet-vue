@@ -8,7 +8,7 @@
             <div class="right">
                 <div class="persion">
                     <Avatar :has-dropdown="true" :src="'/public/imgs/test.jpg'" :dropdown-config="dropdownConfig"
-                        :dropdown-trigger="'click'"></Avatar>
+                        :dropdown-trigger="'click'" no-cache></Avatar>
                 </div>
             </div>
         </div>

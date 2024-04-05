@@ -2,7 +2,7 @@
     <div class="main" v-if="props.user">
         <div class="contain">
             <div class="avatar">
-                <Avatar :src="baseURL + props.user?.avatar"></Avatar>
+                <Avatar :src="baseURL + props.user?.avatar" no-cache></Avatar>
             </div>
             <div class="info">
                 <div class="nickname"><span>昵称：</span>{{ props.user?.nickname }}</div>

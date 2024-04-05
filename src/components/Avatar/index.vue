@@ -3,10 +3,11 @@
         <el-dropdown v-if="props.hasDropdown" :trigger="props.dropdownTrigger"
             :style="`${props.dropdownTrigger == 'click' ? 'cursor: pointer;' : ''}`">
             <span :class="`dropdown-link ${props.class}`">
-                <el-avatar :src="props.src" :size="props.size"> user </el-avatar> <span class="username"
-                    v-if="props.username">{{
-                        props.username
-                    }}</span>
+                <el-avatar :src="props.src + (noCache ? `?r=${Math.random()}` : '')" :size="props.size"> user
+                </el-avatar>
+                <span class="username" v-if="props.username">{{
+                    props.username
+                }}</span>
             </span>
             <template #dropdown>
                 <el-dropdown-menu>
@@ -18,9 +19,10 @@
             </template>
         </el-dropdown>
         <span class="dropdown-link" v-else>
-            <el-avatar :src="props.src"> user </el-avatar> <span class="username" v-if="props.username">{{
-                props.username
-            }}</span>
+            <el-avatar :src="props.src + (noCache ? `?r=${Math.random()}` : '')"> user </el-avatar> <span
+                class="username" v-if="props.username">{{
+                    props.username
+                }}</span>
         </span>
     </div>
 </template>
@@ -48,6 +50,7 @@ const props = defineProps<{
     dropdownTrigger?: 'hover' | 'click' | 'contextmenu';
     dropdownConfig?: DropdownConfig[];
     username?: string;
+    noCache?: boolean;
 }>();
 
 const to = (url: string | undefined) => {

@@ -2,7 +2,7 @@
     <div class="main">
         <div class="contain">
             <div class="avatar">
-                <Avatar :size="120"></Avatar>
+                <Avatar :size="120" no-cache></Avatar>
             </div>
         </div>
     </div>

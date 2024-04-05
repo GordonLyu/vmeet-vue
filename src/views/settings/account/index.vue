@@ -17,7 +17,7 @@
                             <p></p>
                         </div>
                         <div class="avatar" @click="changeAvatarDialog = true">
-                            <Avatar :src="baseURL + avatar"></Avatar>
+                            <Avatar :src="baseURL + avatar" no-cache></Avatar>
                             <div class="icon">
                                 <el-icon size="40">
                                     <Icon icon="bxs:edit"></Icon>

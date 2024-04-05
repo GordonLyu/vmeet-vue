@@ -10,8 +10,8 @@
             </div>
             <div class="right">
                 <div class="persion">
-                    <Avatar :has-dropdown="true" :src="baseURL + props.avatar" :dropdown-config="dropdownConfig"
-                        :dropdown-trigger="'click'"></Avatar>
+                    <Avatar :has-dropdown="true" :src="baseURL + props.avatar" no-cache
+                        :dropdown-config="dropdownConfig" :dropdown-trigger="'click'"></Avatar>
                 </div>
             </div>
         </div>

@@ -3,7 +3,8 @@
         <div class="contain" v-if="contactUser">
             <div class="title">
                 <div class="chat-user">
-                    <Avatar :src="baseURL + contactUser.avatar" :username="contactUser.nickname" :has-dropdown="false">
+                    <Avatar :src="baseURL + contactUser.avatar" no-cache :username="contactUser.nickname"
+                        :has-dropdown="false">
                     </Avatar>
                 </div>
                 <div class="option" v-if="!props.noMore">
