@@ -19,9 +19,11 @@ import api from '@/api';
 import Header from '@/components/Header/index.vue';
 import Menu from '@/components/Menu/index.vue';
 import { useUserInfoStore } from '@/stores/user';
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { RouterView } from 'vue-router';
-
+import { liveMessage } from '@/utils/messageUtil'
+import { useLiveStore } from '@/stores/live';
+import { ElMessage } from 'element-plus';
 const title = ref('聊天')
 const user = useUserInfoStore().user!;
 
@@ -29,8 +31,23 @@ const getMenuItemData = (item: any) => {
   title.value = item.title;
 }
 let uid = useUserInfoStore().user!.id;
-  api.socket.chat.connect(uid);
-
+api.socket.chat.connect(uid);
+onMounted(() => {
+  // todo 对方为发起者，己方为接收者。当对方挂断时，己方通知关闭
+  api.socket.chat.onmessage((resJSON: any) => {
+    let data = JSON.parse(resJSON).data;
+    if (data.type.includes('live')) {
+      let content = JSON.parse(data.content);
+      if (data.type == 'open-live') {
+        useLiveStore().liveMessage = liveMessage(data.from, content.nickname, content.type).elMessage;
+      } else if (data.type == 'close-live') {
+        useLiveStore().liveMessage?.close();
+        useLiveStore().liveMessage = null;
+        useLiveStore().closeVideoChatPage();
+      }
+    }
+  })
+})
 // onUnmounted(() => {
 //   api.socket.chat.close();
 // })

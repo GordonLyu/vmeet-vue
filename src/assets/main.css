@@ -36,3 +36,37 @@ body {
   background-color: #bbbbbb55;
   border-radius: 10px;
 }
+
+
+/* 通话通知消息框 */
+.live-message {
+  font-size: 14px;
+  max-width: 300px;
+  padding: 0 10px;
+}
+
+.live-message .btns {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  padding: 10px 0;
+  padding-bottom: 0;
+}
+
+.live-message .btn {
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #fff;
+  transition: .3s;
+  box-shadow: 0 0 3px 0 #ddd;
+
+  &:hover {
+    /* background-color: #f5f5f5; */
+    box-shadow: 0 0 10px 0 #ddd;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}

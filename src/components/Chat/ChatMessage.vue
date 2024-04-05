@@ -27,6 +27,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { formatDate } from '@/utils/timeUtil';
+import { formLastMessage } from '@/utils/messageUtil'
 import api from '@/api';
 import { useChatStore } from '@/stores/counter';
 import { useUserInfoStore } from '@/stores/user';
@@ -66,7 +67,7 @@ onMounted(async () => {
             await api.message.getLastMessage(messageList[i]).then((res: any) => {
                 if (res.data != null) {
                     t = {
-                        lastMessage: res.data.content,
+                        lastMessage: formLastMessage(res.data.content, res.data.type),
                         date: res.data.timestamp
                     }
                 }

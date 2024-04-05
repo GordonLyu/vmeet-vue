@@ -28,9 +28,9 @@
                         <Icon icon="material-symbols:screen-share"></Icon>
                     </el-icon>
                 </div>
-                <div :class="`connect ${isConnect ? '' : 'hang-up'}`" @click="isConnect = !isConnect">
+                <div :class="`connect`" @click="hangUp">
                     <el-icon :size="25">
-                        <Icon :icon="isConnect ? 'eva:phone-off-fill' : 'subway:call'"></Icon>
+                        <Icon :icon="'subway:call'"></Icon>
                     </el-icon>
                 </div>
             </div>
@@ -62,6 +62,7 @@ const hangUp = () => {
     api.socket.live.close();
     api.socket.live.stopPeerConnection();
     api.socket.live.stopStream();
+    window.close();
 }
 
 // 更新视频配置
@@ -97,13 +98,13 @@ watch(isConnect, () => {
     }
 })
 
-onMounted(() => {
+onMounted(async () => {
     console.log(useRoute().query.to);
-    
     api.socket.live.setRemoteVideoDOM(remoteVideo.value);
     let id = Number(useRoute().params.id);
     api.socket.live.connect(id);
-    updateVideoConfig();
+    await updateVideoConfig();
+    connect();
 })
 
 </script>

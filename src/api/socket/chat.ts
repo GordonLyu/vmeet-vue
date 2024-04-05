@@ -2,8 +2,8 @@ import socket from "@/utils/socket"
 let baseURL = import.meta.env.VITE_BASE_API.replace('http', 'ws');
 
 
-export const connect = (uid: number) => {
-    socket.connect(`${baseURL}/chat/${uid}`);
+export const connect = async (uid: number) => {
+    await socket.connect(`${baseURL}/chat/${uid}`);
 }
 
 export const close = () => {
@@ -18,12 +18,12 @@ export const onmessage = (fn: Function) => {
 }
 
 export const send = (data: {
-    id?: number,
-    from: number,
-    to?: number,
-    content: string,
-    type: string,
-    timestamp: number,
+    id?: number;
+    from: number;
+    to?: number;
+    content: string;
+    type: string;
+    timestamp: number;
     originalFilename?: string;
     size?: number;
 }) => {

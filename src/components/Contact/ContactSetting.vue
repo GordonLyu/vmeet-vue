@@ -10,16 +10,16 @@
             </div>
 
             <div class="chat-mode" v-if="user?.status == 'added'">
-                <div class="text" @click="to(props.user.id, '/chat')">消息</div>
+                <div class="text" @click="to(props.user!.id, '/chat')">消息</div>
                 <div class="call">音频</div>
-                <div class="video" @click="toVideo(props.user.id)">视频</div>
+                <div class="video" @click="toVideo(props.user!.id)">视频</div>
             </div>
             <div class="option">
                 <el-button type="success" v-if="user?.status == 'waitAdd'"
-                    @click="agreeAdd(props.user.username)">添加联系人</el-button>
+                    @click="agreeAdd(props.user!.username)">添加联系人</el-button>
                 <el-button type="danger" v-if="user?.status == 'waitAdd'">拒绝</el-button>
                 <div v-if="user?.status == 'waitAgree'">等待对方同意添加联系人</div>
-                <el-button type="danger" @click="del(props.user.id)" v-if="user?.status == 'added'">删除联系人</el-button>
+                <el-button type="danger" @click="del(props.user!.id)" v-if="user?.status == 'added'">删除联系人</el-button>
             </div>
         </div>
     </div>
@@ -30,9 +30,10 @@ import api from '@/api';
 import Avatar from '@/components/Avatar/index.vue'
 import router from '@/router';
 import type { Contact } from '@/types/Contact';
-import { ElMessage, ElMessageBox } from 'element-plus/lib/components/index.js';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { useChatStore } from '@/stores/counter'
 import { useUserInfoStore } from '@/stores/user';
+import { useLiveStore } from '@/stores/live';
 
 const baseURL = import.meta.env.VITE_BASE_API;
 
@@ -61,11 +62,12 @@ const to = (uid: number, url: string) => {
     router.push(url);
 }
 
+
+
 const toVideo = (id: number) => {
     let myID = useUserInfoStore().user!.id;
-    window.open(`/video-chat/${myID}?to=${id}`, "_blank", "resizable=1,height=1000,width=1600");
-    window.opener = null;
-
+    // 打开视频通话页面
+    useLiveStore().openVideoChatPage(myID, id, props.user?.nickname!);
 }
 
 const agreeAdd = (username: string) => {
@@ -80,7 +82,6 @@ const agreeAdd = (username: string) => {
         console.log(res);
     })
 }
-
 
 // 删除
 const del = (uid: number) => {
