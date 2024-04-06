@@ -56,7 +56,7 @@
                             </el-icon>
                         </div>
                     </el-tooltip>
-                    <V3Emoji class="emoji" :recent="true" @click-emoji="appendText" :fulldata="true" v-model="text">
+                    <V3Emoji class="emoji" v-model="text" recent @click-emoji="appendText" fulldata>
                         <el-tooltip :content="'emoji'" placement="top">
                             <el-icon size="25px">
                                 <Icon :icon="'mdi:emoticon-happy-outline'"></Icon>
@@ -103,6 +103,7 @@ import { useUserInfoStore } from '@/stores/user';
 import { useLiveStore } from '@/stores/live';
 
 const uploadRefs = ref<UploadRefInstance[]>([]);
+const textareaRef = ref<HTMLTextAreaElement>()
 
 const setUploadRefs = (el: UploadRefInstance) => {
     uploadRefs.value.push(el)
@@ -261,10 +262,8 @@ const scrollTo = (position: 'top' | 'bottom') => {
 
 // e获取moji
 const appendText = (emoji: any) => {
-    text.value = text.value + emoji.emoji;
+    text.value = textareaRef.value!.value = textareaRef.value!.value + emoji.emoji;
     console.log(emoji);
-
-
 }
 
 // 获取文件
